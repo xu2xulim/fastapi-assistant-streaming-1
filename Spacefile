@@ -1,0 +1,13 @@
+# Spacefile Docs: https://go.deta.dev/docs/spacefile/v0
+v: 0
+micros:
+  - name: fastapi-assistant-streaming
+    src: ./
+    engine: python3.11
+    primary: true
+    run: uvicorn main:app
+    preset:
+      env:
+        - name: OPENAI_API_KEY
+        - name: OPENAI_ASSISTANT_ID
+
