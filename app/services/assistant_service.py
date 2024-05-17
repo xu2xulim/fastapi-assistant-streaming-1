@@ -25,6 +25,10 @@ class AssistantService:
     async def retrieve_thread(self, thread_id: str):
         thread = await self.client.beta.threads.retrieve(thread_id)
         return thread
+    # delete thread
+    async def delete_thread(self, thread_id: str):
+        thread = await self.client.beta.threads.delete(thread_id)
+        return thread
 
     async def create_message(self, thread_id, content):
         message = await self.client.beta.threads.messages.create(
