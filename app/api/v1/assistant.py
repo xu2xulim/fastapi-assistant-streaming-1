@@ -24,11 +24,15 @@ async def post_thread(
 
     return {"data": thread}
 
+class thread(BaseModel):
+    thread_id: str
+
 @router.delete("/assistant/threads")
-async def post_thread(
+async def delete_thread(
+    query: thread = Body(...),
     assistant_service: AssistantService = Depends(get_assistant_service),
 ):
-    thread = await assistant_service.delete_thread()
+    thread = await assistant_service.delete_thread(query.thread_id)
 
     return {"data": thread}
 
