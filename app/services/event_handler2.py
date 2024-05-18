@@ -1,7 +1,7 @@
 import asyncio
 from typing import AsyncIterator, Literal, Union, cast
 
-from openai import AsyncOpenAI, AsyncAssistantEventHandler
+from openai import AsyncOpenAI, AsyncAssistantEventHandler, AssistantStreamEvent
 from openai.types.beta.threads import Text, TextDelta
 from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
 from openai.types.beta.threads import Message, MessageDelta
@@ -153,7 +153,7 @@ class EventHandler(AsyncAssistantEventHandler):
            print(delta, end="", flush=True)
 
     @override
-    async def on_event(self, event: AsyncAssistantStreamEvent) -> None:
+    async def on_event(self, event: AssistantStreamEvent) -> None:
        # print("In on_event of event is ", event.event, flush=True)
 
        if event.event == "thread.run.requires_action":
