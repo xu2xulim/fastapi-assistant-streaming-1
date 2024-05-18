@@ -68,6 +68,7 @@ class EventHandler(AsyncAssistantEventHandler):
         print(f"\nassistant > {tool_call.type}\n", flush=True)
   
     def on_tool_call_delta(self, delta, snapshot):
+        print(f"\non_tool_call_delta > {delta}\n", flush=True)
         if delta.type == 'code_interpreter':
             if delta.code_interpreter.input:
                 print(delta.code_interpreter.input, end="", flush=True)
