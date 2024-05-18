@@ -54,5 +54,4 @@ async def chat(
     stream_it = EventHandler()
     gen = assistant_service.create_gen(thread, stream_it)
 
-    print(f"gen {gen}")
     return StreamingResponse(gen, media_type="text/event-stream")
