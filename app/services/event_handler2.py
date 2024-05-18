@@ -1,8 +1,11 @@
 import asyncio
 from typing import AsyncIterator, Literal, Union, cast
 
-from openai import AsyncAssistantEventHandler
-from openai.types.beta.threads import Message
+from openai import AsyncOpenAI, AsyncAssistantEventHandler
+from openai.types.beta.threads import Text, TextDelta
+from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
+from openai.types.beta.threads import Message, MessageDelta
+from openai.types.beta.threads.runs import ToolCall, RunStep
 from typing_extensions import override
 
 
@@ -10,6 +13,7 @@ from typing_extensions import override
 
 
 class EventHandler(AsyncAssistantEventHandler):
+    openai_client: AsyncOpenAI
     queue: asyncio.Queue[str]
     done: asyncio.Event
     async def __init__(self, thread_id, assistant_id):
@@ -65,13 +69,13 @@ class EventHandler(AsyncAssistantEventHandler):
       
        print(f"\nassistant > {tool_call.type} {self.function_name}\n", flush=True)
 
-       keep_retrieving_run = openai_client.beta.threads.runs.retrieve(
+       keep_retrieving_run = self.openai_client.beta.threads.runs.retrieve(
            thread_id=self.thread_id,
            run_id=self.run_id
        )
 
        while keep_retrieving_run.status in ["queued", "in_progress"]: 
-           keep_retrieving_run = openai_client.beta.threads.runs.retrieve(
+           keep_retrieving_run = self.openai_client.beta.threads.runs.retrieve(
                thread_id=self.thread_id,
                run_id=self.run_id
            )
@@ -80,7 +84,7 @@ class EventHandler(AsyncAssistantEventHandler):
       
     @override
     async def on_tool_call_done(self, tool_call: ToolCall) -> None:       
-       keep_retrieving_run = openai_client.beta.threads.runs.retrieve(
+       keep_retrieving_run = self.openai_client.beta.threads.runs.retrieve(
            thread_id=self.thread_id,
            run_id=self.run_id
        )
@@ -88,8 +92,8 @@ class EventHandler(AsyncAssistantEventHandler):
        print(f"\nDONE STATUS: {keep_retrieving_run.status}")
       
        if keep_retrieving_run.status == "completed":
-           all_messages = openai_client.beta.threads.messages.list(
-               thread_id=current_thread.id
+           all_messages = self.openai_client.beta.threads.messages.list(
+               thread_id=self.thread_id
            )
 
            print(all_messages.data[0].content[0].text.value, "", "")
@@ -99,11 +103,11 @@ class EventHandler(AsyncAssistantEventHandler):
            print("here you would call your function")
 
            if self.function_name == "example_blog_post_function":
-               function_data = my_example_funtion()
+               function_data = None
   
                self.output=function_data
               
-               with openai_client.beta.threads.runs.submit_tool_outputs_stream(
+               with self.openai_client.beta.threads.runs.submit_tool_outputs_stream(
                    thread_id=self.thread_id,
                    run_id=self.run_id,
                    tool_outputs=[{
