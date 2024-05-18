@@ -3,7 +3,7 @@ import asyncio
 from openai import AsyncOpenAI #, AssistantEventHandler
 
 from app.core.config import settings
-from app.services.event_handler2 import EventHandler
+from app.services.myevent_handler import EventHandler
 
  
 class AssistantService:
