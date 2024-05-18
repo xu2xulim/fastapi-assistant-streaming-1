@@ -32,6 +32,26 @@ class EventHandler(AsyncAssistantEventHandler):
         """Fires when stream ends or when exception is thrown"""
         self.done.set()
 
+
+    async def on_tool_call_created(self, tool_call):
+        print(f"\nassistant > {tool_call.type}\n", flush=True)
+  
+    async def on_tool_call_delta(self, delta, snapshot):
+        if delta.type == 'code_interpreter':
+            if delta.code_interpreter.input:
+                print(delta.code_interpreter.input, end="", flush=True)
+            if delta.code_interpreter.outputs:
+                print(f"\n\noutput >", flush=True)
+                for output in delta.code_interpreter.outputs:
+                    if output.type == "logs":
+                        print(f"\n{output.logs}", flush=True)
+                    else:
+                        print(f"\nOutput Type: {output.type}", flush=True)
+        elif delta.type == 'function':
+            print(f"\Delta Type: {delta.type}", flush=True)
+        else:
+            print(f"\Delta Type: {delta.type} not supported", flush=True)
+
     async def aiter(self) -> AsyncIterator[str]:
         while not self.queue.empty() or not self.done.is_set():
             done, other = await asyncio.wait(
