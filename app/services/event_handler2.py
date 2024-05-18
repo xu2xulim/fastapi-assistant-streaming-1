@@ -2,6 +2,7 @@ import asyncio
 from typing import AsyncIterator, Literal, Union, cast
 
 from openai import AsyncAssistantEventHandler
+from openai.types.beta.threads import Message
 from typing_extensions import override
 
 
