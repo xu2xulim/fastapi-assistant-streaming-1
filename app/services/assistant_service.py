@@ -1,11 +1,11 @@
 import asyncio
 
-from openai import AsyncOpenAI, AssistantEventHandler
+from openai import AsyncOpenAI #, AssistantEventHandler
 
 from app.core.config import settings
 from app.services.event_handler import EventHandler
 
- 
+"""
 class EventHandler(AssistantEventHandler):
 
     #@override
@@ -39,7 +39,7 @@ class EventHandler(AssistantEventHandler):
         for text in stream.text_deltas:
           print(text, end="", flush=True)
         print()
-
+"""
 class AssistantService:
     client: AsyncOpenAI
     assistant_id: str
