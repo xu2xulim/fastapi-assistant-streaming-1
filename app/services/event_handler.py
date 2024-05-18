@@ -33,10 +33,10 @@ class EventHandler(AsyncAssistantEventHandler):
         self.done.set()
 
 
-    async def on_tool_call_created(self, tool_call):
+    def on_tool_call_created(self, tool_call):
         print(f"\nassistant > {tool_call.type}\n", flush=True)
   
-    async def on_tool_call_delta(self, delta, snapshot):
+    def on_tool_call_delta(self, delta, snapshot):
         if delta.type == 'code_interpreter':
             if delta.code_interpreter.input:
                 print(delta.code_interpreter.input, end="", flush=True)
