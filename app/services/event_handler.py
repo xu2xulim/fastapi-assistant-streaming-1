@@ -34,6 +34,7 @@ class EventHandler(AsyncAssistantEventHandler):
     
     @override
     async def on_event(self, event):
+      print(f"\non_event > {event}\n", flush=True)
       # Retrieve events that are denoted with 'requires_action'
       # since these will have our tool_calls
       if event.event == 'thread.run.requires_action':
@@ -41,6 +42,7 @@ class EventHandler(AsyncAssistantEventHandler):
         self.handle_requires_action(event.data, run_id)
  
     async def handle_requires_action(self, data, run_id):
+      print(f"\nhandle_requires_action > {data}\n", flush=True)
       tool_outputs = []
         
       for tool in data.required_action.submit_tool_outputs.tool_calls:
@@ -53,6 +55,7 @@ class EventHandler(AsyncAssistantEventHandler):
       self.submit_tool_outputs(tool_outputs, run_id)
  
     async def submit_tool_outputs(self, tool_outputs, run_id):
+      print(f"\nsubmit_tool_outputs > {tool_outputs}\n", flush=True)
       # Use the submit_tool_outputs_stream helper
       with self.client.beta.threads.runs.submit_tool_outputs_stream(
         thread_id=self.current_run.thread_id,
@@ -65,7 +68,7 @@ class EventHandler(AsyncAssistantEventHandler):
         print()
 
     def on_tool_call_created(self, tool_call):
-        print(f"\nassistant > {tool_call.type}\n", flush=True)
+        print(f"\non_tool_call_created > {tool_call.type}\n", flush=True)
   
     def on_tool_call_delta(self, delta, snapshot):
         print(f"\non_tool_call_delta > {delta}\n", flush=True)
