@@ -75,9 +75,9 @@ class EventHandler(AsyncAssistantEventHandler):
                 for text in stream.text_deltas:
                     print(text, end="", flush=True)
             detalog.put({"log" : "End of submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
-        elif event.event == "thread.run.completed":
-            detalog.put({"log" : "thread.run.completed", "check" : event.event}, expire_in=120)
-            self.client.beta.threads.runs.delete(event.data.id)
+        #elif event.event == "thread.run.completed":
+            #detalog.put({"log" : "thread.run.completed", "check" : event.event}, expire_in=120)
+            #self.client.beta.threads.runs.delete(event.data.id)
  
     async def on_tool_call_created(self, tool_call):
         detalog.put({"log" : "on_tool_call_created", "check" : "OK"}, expire_in=120)
