@@ -32,7 +32,7 @@ def handle_requires_action(self, data, run_id):
             tool_outputs.append({"tool_call_id": tool.id, "output": "X"})
         
     # Submit all tool_outputs at the same time
-    self.submit_tool_outputs(tool_outputs, run_id)
+    submit_tool_outputs(tool_outputs, run_id)
 
 
 class EventHandler(AsyncAssistantEventHandler):
@@ -70,7 +70,7 @@ class EventHandler(AsyncAssistantEventHandler):
         if event.event == 'thread.run.requires_action':
             detalog.put({"log" : "thread.run.requires_action", "check" : event.data.id}, expire_in=120)
             run_id = event.data.id  # Retrieve the run ID from the event data
-            self.handle_requires_action(event.data, run_id)
+            handle_requires_action(event.data, run_id)
  
     async def on_tool_call_created(self, tool_call):
         detalog.put({"log" : "on_tool_call_created", "check" : "OK"}, expire_in=120)
