@@ -22,10 +22,10 @@ def submit_tool_outputs(self, tool_outputs, run_id):
         detalog.put({"log" : "End of submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
 
 def handle_requires_action(self, data, run_id):
-    detalog.put({"log" : "handle_requires_action", "check" : str(event.data)}, expire_in=120)
+    detalog.put({"log" : "handle_requires_action", "check" : str(data)}, expire_in=120)
     tool_outputs = []
         
-    for tool in event.data.required_action.submit_tool_outputs.tool_calls:
+    for tool in data.required_action.submit_tool_outputs.tool_calls:
         if tool.function.name == "get_random_digit":
             tool_outputs.append({"tool_call_id": tool.id, "output": "57"})
         elif tool.function.name == "get_random_letter":
