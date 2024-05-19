@@ -31,8 +31,7 @@ class AssistantService:
         return thread
 
     async def create_message(self, thread_id, content):
-        #message = await self.client.beta.threads.messages.create(
-        message = self.client.beta.threads.messages.create(
+        message = await self.client.beta.threads.messages.create(
             thread_id=thread_id,
             role="user",
             content=content,
