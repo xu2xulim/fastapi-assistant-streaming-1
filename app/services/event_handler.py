@@ -39,9 +39,9 @@ class EventHandler(AsyncAssistantEventHandler):
       # since these will have our tool_calls
       if event.event == 'thread.run.requires_action':
         run_id = event.data.id  # Retrieve the run ID from the event data
-        await self.handle_requires_action(event.data, run_id)
+        self.handle_requires_action(event.data, run_id)
  
-    async def handle_requires_action(self, data, run_id):
+    def handle_requires_action(self, data, run_id):
       print(f"\nhandle_requires_action > {data}\n", flush=True)
       tool_outputs = []
         
@@ -52,9 +52,9 @@ class EventHandler(AsyncAssistantEventHandler):
           tool_outputs.append({"tool_call_id": tool.id, "output": "X"})
         
       # Submit all tool_outputs at the same time
-      await self.submit_tool_outputs(tool_outputs, run_id)
+      self.submit_tool_outputs(tool_outputs, run_id)
  
-    async def submit_tool_outputs(self, tool_outputs, run_id):
+    def submit_tool_outputs(self, tool_outputs, run_id):
       print(f"\nsubmit_tool_outputs > {tool_outputs}\n", flush=True)
       # Use the submit_tool_outputs_stream helper
       with self.client.beta.threads.runs.submit_tool_outputs_stream(
@@ -65,7 +65,7 @@ class EventHandler(AsyncAssistantEventHandler):
       ) as stream:
         for text in stream.text_deltas:
           print(text, end="", flush=True)
-        print()
+        print("I am here")
 
     async def on_tool_call_created(self, tool_call):
         print(f"\non_tool_call_created > {tool_call.type}\n", flush=True)
