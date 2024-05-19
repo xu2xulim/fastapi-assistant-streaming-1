@@ -72,11 +72,11 @@ class EventHandler(AsyncAssistantEventHandler):
                 tool_outputs=tool_outputs,
                 event_handler=EventHandler(),
             ) as stream:
-                for text in stream.text_deltas:
+                for text in stream.text_delta:
                     print(text, end="", flush=True)
                     detalog.put({"log" : "text_deltas", "check" : text}, expire_in=120)
                 stream.until_done()
-                
+
             detalog.put({"log" : "End of submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
         #elif event.event == "thread.run.completed":
             #detalog.put({"log" : "thread.run.completed", "check" : event.event}, expire_in=120)
