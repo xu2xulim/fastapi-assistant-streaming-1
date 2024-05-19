@@ -75,7 +75,7 @@ class EventHandler(AsyncAssistantEventHandler):
         detalog.put({"log" : "on_tool_call_created", "check" : "OK"}, expire_in=120)
   
     async def on_tool_call_delta(self, delta, snapshot):
-        detalog.put({"log" : "on_tool_call_delta", "check" : delta}, expire_in=120)
+        detalog.put({"log" : "on_tool_call_delta", "check" : str(delta)}, expire_in=120)
         if delta.type == 'code_interpreter':
             if delta.code_interpreter.input:
                 print(delta.code_interpreter.input, end="", flush=True)
