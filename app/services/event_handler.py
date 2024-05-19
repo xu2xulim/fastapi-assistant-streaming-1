@@ -4,6 +4,7 @@ from typing import AsyncIterator, Literal, Union, cast
 from openai import AsyncAssistantEventHandler
 from typing_extensions import override
 import os
+import json
 from deta import Deta
 DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
 detalog = Deta(DETA_DATA_KEY).Base('assistant')
@@ -54,9 +55,9 @@ class EventHandler(AsyncAssistantEventHandler):
         
             for tool in event.data.required_action.submit_tool_outputs.tool_calls:
                 if tool.function.name == "get_random_digit":
-                    tool_outputs.append({"tool_call_id": tool.id, "output": "57"})
+                    tool_outputs.append(json.dumps({"tool_call_id": tool.id, "output": "57"}))
                 elif tool.function.name == "get_random_letter":
-                    tool_outputs.append({"tool_call_id": tool.id, "output": "X"})
+                    tool_outputs.append(json.dumps({"tool_call_id": tool.id, "output": "X"}))
         
     # Submit all tool_outputs at the same time
     #submit_tool_outputs(tool_outputs, run_id)
