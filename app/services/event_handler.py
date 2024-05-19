@@ -38,10 +38,11 @@ class EventHandler(AsyncAssistantEventHandler):
     
     @override
     async def on_event(self, event):
-      detalog.put({"log" : "on_event", "check" : str(event)}, expire_in=120)
+      detalog.put({"log" : "on_event", "check" : event.event}, expire_in=120)
       # Retrieve events that are denoted with 'requires_action'
       # since these will have our tool_calls
       if event.event == 'thread.run.requires_action':
+        detalog.put({"log" : "thread.run.requires_action", "check" : event.data.id}, expire_in=120)
         run_id = event.data.id  # Retrieve the run ID from the event data
         await self.handle_requires_action(event.data, run_id)
  
