@@ -5,7 +5,7 @@ from openai import AsyncAssistantEventHandler
 from typing_extensions import override
 import os
 from deta import Deta
-DETA_DATA_KEY = os.environ,get('DETA_DATA_KEY')
+DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
 detalog = Deta(DETA_DATA_KEY).Base('assistant')
 
 
