@@ -64,7 +64,7 @@ class EventHandler(AsyncAssistantEventHandler):
     #submit_tool_outputs(tool_outputs, run_id)
 
     #def submit_tool_outputs(self, tool_outputs, run_id):    
-            #detalog.put({"log" : "submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
+            detalog.put({"log" : "submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
     # Use the submit_tool_outputs_stream helper
             with self.client.beta.threads.runs.submit_tool_outputs_stream(
                 thread_id=x_thread_id,
@@ -72,9 +72,9 @@ class EventHandler(AsyncAssistantEventHandler):
                 tool_outputs=tool_outputs,
                 event_handler=EventHandler(),
             ) as stream:
-                for text in stream.text_delta:
-                    print(text, end="", flush=True)
-                    detalog.put({"log" : "text_deltas", "check" : text}, expire_in=120)
+                #for text in stream.text_delta:
+                    #print(text, end="", flush=True)
+                    #detalog.put({"log" : "text_deltas", "check" : text}, expire_in=120)
                 stream.until_done()
 
             detalog.put({"log" : "End of submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
