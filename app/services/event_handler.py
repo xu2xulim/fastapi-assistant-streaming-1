@@ -54,12 +54,12 @@ class EventHandler(AsyncAssistantEventHandler):
       # Submit all tool_outputs at the same time
       self.submit_tool_outputs(tool_outputs, run_id)
  
-    def submit_tool_outputs(self, tool_outputs, run_id):
+    def submit_tool_outputs(self, tool_outputs, x_run_id):
       print(f"\nsubmit_tool_outputs > {tool_outputs}\n", flush=True)
       # Use the submit_tool_outputs_stream helper
       with self.client.beta.threads.runs.submit_tool_outputs_stream(
-        thread_id=self.current_run.thread_id,
-        run_id=self.current_run.id,
+        thread_id=x_run_id,
+        run_id=x_run_id,
         tool_outputs=tool_outputs,
         event_handler=EventHandler(),
       ) as stream:
