@@ -22,7 +22,7 @@ def submit_tool_outputs(self, tool_outputs, run_id):
         detalog.put({"log" : "End of submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
 
 def handle_requires_action(self, data, run_id):
-    detalog.put({"log" : "handle_requires_action", "check" : str(data)}, expire_in=120)
+    detalog.put({"log" : "handle_requires_action", "check" : "I am here"}, expire_in=120)
     tool_outputs = []
         
     for tool in data.required_action.submit_tool_outputs.tool_calls:
