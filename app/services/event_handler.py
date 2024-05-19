@@ -59,7 +59,7 @@ class EventHandler(AsyncAssistantEventHandler):
                     tool_outputs.append(json.dumps({"tool_call_id": tool.id, "output": "57"}))
                 elif tool.function.name == "get_random_letter":
                     tool_outputs.append(json.dumps({"tool_call_id": tool.id, "output": "X"}))
-        
+
     # Submit all tool_outputs at the same time
     #submit_tool_outputs(tool_outputs, run_id)
 

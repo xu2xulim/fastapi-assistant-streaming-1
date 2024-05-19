@@ -31,7 +31,8 @@ class AssistantService:
         return thread
 
     async def create_message(self, thread_id, content):
-        message = await self.client.beta.threads.messages.create(
+        #message = await self.client.beta.threads.messages.create(
+        message = self.client.beta.threads.messages.create(
             thread_id=thread_id,
             role="user",
             content=content,
@@ -45,6 +46,8 @@ class AssistantService:
             event_handler=stream_it,
         ) as stream:
             await stream.until_done()
+
+        
 
     async def create_gen(self, thread, stream_it: EventHandler):
         task = asyncio.create_task(self.run_stream(thread, stream_it))
