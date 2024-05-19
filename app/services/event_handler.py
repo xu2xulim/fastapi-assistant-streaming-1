@@ -42,9 +42,9 @@ class EventHandler(AsyncAssistantEventHandler):
         #detalog.put({"log" : "on_event", "check" : str(event)}, expire_in=120)
         # Retrieve events that are denoted with 'requires_action'
         # since these will have our tool_calls
-        detalog.put({"log" : "tracking events", "check" : event.event}, expire_in=120)
+
         if event.event == 'thread.run.requires_action':
-            
+            detalog.put({"log" : "thread.run.requires_action", "check" : event.event}, expire_in=120)            
             x_run_id = event.data.id  # Retrieve the run ID from the event data
             x_thread_id = event.data.thread_id
             #handle_requires_action(event.data, run_id)
@@ -74,8 +74,9 @@ class EventHandler(AsyncAssistantEventHandler):
             ) as stream:
                 for text in stream.text_deltas:
                     print(text, end="", flush=True)
-            
             detalog.put({"log" : "End of submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
+        elif event.event == "thread.run.completed":
+            detalog.put({"log" : "thread.run.completed", "check" : event.event}, expire_in=120)
  
     async def on_tool_call_created(self, tool_call):
         detalog.put({"log" : "on_tool_call_created", "check" : "OK"}, expire_in=120)
