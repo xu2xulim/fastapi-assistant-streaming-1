@@ -56,7 +56,7 @@ class EventHandler(AsyncAssistantEventHandler):
         
             for tool in event.data.required_action.submit_tool_outputs.tool_calls:
                 if tool.function.name == "get_random_digit":
-                    tool_outputs.append(json.dumps({"tool_call_id": tool.id, "output": "57"}))
+                    tool_outputs.append(json.dumps({"tool_call_id": tool.id, "output": "5"}))
                 elif tool.function.name == "get_random_letter":
                     tool_outputs.append(json.dumps({"tool_call_id": tool.id, "output": "X"}))
 
@@ -74,6 +74,9 @@ class EventHandler(AsyncAssistantEventHandler):
             ) as stream:
                 for text in stream.text_deltas:
                     print(text, end="", flush=True)
+                    detalog.put({"log" : "text_deltas", "check" : text}, expire_in=120)
+                stream.until_done()
+                
             detalog.put({"log" : "End of submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
         #elif event.event == "thread.run.completed":
             #detalog.put({"log" : "thread.run.completed", "check" : event.event}, expire_in=120)
