@@ -42,8 +42,9 @@ class EventHandler(AsyncAssistantEventHandler):
         #detalog.put({"log" : "on_event", "check" : str(event)}, expire_in=120)
         # Retrieve events that are denoted with 'requires_action'
         # since these will have our tool_calls
+        detalog.put({"log" : "tracking events", "check" : event.event}, expire_in=120)
         if event.event == 'thread.run.requires_action':
-            detalog.put({"log" : "thread.run.requires_action", "check" : str(event.data.thread_id)}, expire_in=120)
+            
             x_run_id = event.data.id  # Retrieve the run ID from the event data
             x_thread_id = event.data.thread_id
             #handle_requires_action(event.data, run_id)
