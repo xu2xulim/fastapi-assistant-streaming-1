@@ -45,7 +45,7 @@ class Query(BaseModel):
 @router.post("/assistant/chat")
 async def chat(
     query: Query = Body(...),
-    assistant_service: AssistantService = Depends(get_assistant_service),
+    assistant_service: AssistantService = Depends(get_assistant_service)
 ):
     thread = await assistant_service.retrieve_thread(query.thread_id)
 
