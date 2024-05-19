@@ -8,6 +8,32 @@ from deta import Deta
 DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
 detalog = Deta(DETA_DATA_KEY).Base('assistant')
 
+def submit_tool_outputs(self, tool_outputs, run_id):
+    detalog.put({"log" : "submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
+    # Use the submit_tool_outputs_stream helper
+    with self.client.beta.threads.runs.submit_tool_outputs_stream(
+        thread_id=run_id,
+        run_id=run_id,
+        tool_outputs=tool_outputs,
+        event_handler=EventHandler(),
+    ) as stream:
+        for text in stream.text_deltas:
+            print(text, end="", flush=True)
+        detalog.put({"log" : "End of submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
+
+def handle_requires_action(self, data, run_id):
+    detalog.put({"log" : "handle_requires_action", "check" : str(event.data)}, expire_in=120)
+    tool_outputs = []
+        
+    for tool in event.data.required_action.submit_tool_outputs.tool_calls:
+        if tool.function.name == "get_random_digit":
+            tool_outputs.append({"tool_call_id": tool.id, "output": "57"})
+        elif tool.function.name == "get_random_letter":
+            tool_outputs.append({"tool_call_id": tool.id, "output": "X"})
+        
+    # Submit all tool_outputs at the same time
+    self.submit_tool_outputs(tool_outputs, run_id)
+
 
 class EventHandler(AsyncAssistantEventHandler):
     """Async event handler that provides an async iterator."""
@@ -38,40 +64,14 @@ class EventHandler(AsyncAssistantEventHandler):
     
     @override
     async def on_event(self, event):
-      detalog.put({"log" : "on_event", "check" : event.event}, expire_in=120)
-      # Retrieve events that are denoted with 'requires_action'
-      # since these will have our tool_calls
-      if event.event == 'thread.run.requires_action':
-        detalog.put({"log" : "thread.run.requires_action", "check" : event.data.id}, expire_in=120)
-        run_id = event.data.id  # Retrieve the run ID from the event data
-        #self.handle_requires_action(event.data, run_id)
+        detalog.put({"log" : "on_event", "check" : event.event}, expire_in=120)
+        # Retrieve events that are denoted with 'requires_action'
+        # since these will have our tool_calls
+        if event.event == 'thread.run.requires_action':
+            detalog.put({"log" : "thread.run.requires_action", "check" : event.data.id}, expire_in=120)
+            run_id = event.data.id  # Retrieve the run ID from the event data
+            self.handle_requires_action(event.data, run_id)
  
-    #def handle_requires_action(self, data, run_id):
-        detalog.put({"log" : "handle_requires_action", "check" : str(event.data)}, expire_in=120)
-        tool_outputs = []
-        
-        for tool in event.data.required_action.submit_tool_outputs.tool_calls:
-            if tool.function.name == "get_random_digit":
-                tool_outputs.append({"tool_call_id": tool.id, "output": "57"})
-            elif tool.function.name == "get_random_letter":
-                tool_outputs.append({"tool_call_id": tool.id, "output": "X"})
-        
-        # Submit all tool_outputs at the same time
-        #self.submit_tool_outputs(tool_outputs, run_id)
- 
-    #def submit_tool_outputs(self, tool_outputs, x_run_id):
-        detalog.put({"log" : "submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
-        # Use the submit_tool_outputs_stream helper
-        with self.client.beta.threads.runs.submit_tool_outputs_stream(
-            thread_id=run_id,
-            run_id=run_id,
-            tool_outputs=tool_outputs,
-            event_handler=EventHandler(),
-        ) as stream:
-            for text in stream.text_deltas:
-                print(text, end="", flush=True)
-        detalog.put({"log" : "End of submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
-
     async def on_tool_call_created(self, tool_call):
         detalog.put({"log" : "on_tool_call_created", "check" : "OK"}, expire_in=120)
   
