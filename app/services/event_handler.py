@@ -38,7 +38,7 @@ class EventHandler(AsyncAssistantEventHandler):
     
     @override
     async def on_event(self, event):
-        detalog.put({"log" : "on_event", "check" : event.event}, expire_in=120)
+        detalog.put({"log" : "on_event", "check" : str(event)}, expire_in=120)
         # Retrieve events that are denoted with 'requires_action'
         # since these will have our tool_calls
         if event.event == 'thread.run.requires_action':
@@ -64,7 +64,7 @@ class EventHandler(AsyncAssistantEventHandler):
             detalog.put({"log" : "submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
     # Use the submit_tool_outputs_stream helper
             with self.client.beta.threads.runs.submit_tool_outputs_stream(
-                thread_id=run_id,
+                #thread_id=run_id,
                 run_id=run_id,
                 tool_outputs=tool_outputs,
                 event_handler=EventHandler(),
