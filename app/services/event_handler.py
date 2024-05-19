@@ -43,8 +43,8 @@ class EventHandler(AsyncAssistantEventHandler):
         # since these will have our tool_calls
         if event.event == 'thread.run.requires_action':
             detalog.put({"log" : "thread.run.requires_action", "check" : str(event.data.thread_id)}, expire_in=120)
-            run_id = event.data.id  # Retrieve the run ID from the event data
-            thread_id = event.data.thread_id
+            x_run_id = event.data.id  # Retrieve the run ID from the event data
+            x_thread_id = event.data.thread_id
             #handle_requires_action(event.data, run_id)
 
 
@@ -65,8 +65,8 @@ class EventHandler(AsyncAssistantEventHandler):
             #detalog.put({"log" : "submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
     # Use the submit_tool_outputs_stream helper
             with self.client.beta.threads.runs.submit_tool_outputs_stream(
-                thread_id=thread_id,
-                run_id=run_id,
+                thread_id=x_thread_id,
+                run_id=x_run_id,
                 tool_outputs=tool_outputs,
                 event_handler=EventHandler(),
             ) as stream:
