@@ -75,7 +75,7 @@ class EventHandler(AsyncAssistantEventHandler):
         detalog.put({"log" : "on_tool_call_created", "check" : "OK"}, expire_in=120)
   
     async def on_tool_call_delta(self, delta, snapshot):
-        detalog.put({"log" : "on_tool_call_delta", "check" : "OK"}, expire_in=120)
+        detalog.put({"log" : "on_tool_call_delta", "check" : delta}, expire_in=120)
         if delta.type == 'code_interpreter':
             if delta.code_interpreter.input:
                 print(delta.code_interpreter.input, end="", flush=True)
@@ -87,9 +87,11 @@ class EventHandler(AsyncAssistantEventHandler):
                     else:
                         print(f"\nOutput Type: {output.type}", flush=True)
         elif delta.type == 'function':
-            print(f"\Delta Type: {delta.type}", flush=True)
+            detalog.put({"log" : "on_tool_call_delta", "check" : delta.function.input}, expire_in=120)
+            detalog.put({"log" : "on_tool_call_delta", "check" : delta.function.output}, expire_in=120)
+            print(f"Delta Type: {delta.type}", flush=True)
         else:
-            print(f"\Delta Type: {delta.type} not supported", flush=True)
+            print(f"Delta Type: {delta.type} not supported", flush=True)
 
     async def aiter(self) -> AsyncIterator[str]:
         while not self.queue.empty() or not self.done.is_set():
