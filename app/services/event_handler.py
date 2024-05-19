@@ -66,6 +66,7 @@ class EventHandler(AsyncAssistantEventHandler):
     #def submit_tool_outputs(self, tool_outputs, run_id):    
             detalog.put({"log" : "submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
     # Use the submit_tool_outputs_stream helper
+            """
             with self.client.beta.threads.runs.submit_tool_outputs_stream(
                 thread_id=x_thread_id,
                 run_id=x_run_id,
@@ -76,7 +77,7 @@ class EventHandler(AsyncAssistantEventHandler):
                     #print(text, end="", flush=True)
                     #detalog.put({"log" : "text_deltas", "check" : text}, expire_in=120)
                 stream.until_done()
-
+            """
             detalog.put({"log" : "End of submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
         #elif event.event == "thread.run.completed":
             #detalog.put({"log" : "thread.run.completed", "check" : event.event}, expire_in=120)
@@ -86,7 +87,7 @@ class EventHandler(AsyncAssistantEventHandler):
         detalog.put({"log" : "on_tool_call_created", "check" : "OK"}, expire_in=120)
   
     async def on_tool_call_delta(self, delta, snapshot):
-        #detalog.put({"log" : "on_tool_call_delta", "check" : delta.type}, expire_in=120)
+        detalog.put({"log" : "on_tool_call_delta", "check" : str(delta)}, expire_in=120)
         if delta.type == 'code_interpreter':
             if delta.code_interpreter.input:
                 print(delta.code_interpreter.input, end="", flush=True)
