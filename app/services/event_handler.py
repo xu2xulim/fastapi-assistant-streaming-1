@@ -47,7 +47,7 @@ class EventHandler(AsyncAssistantEventHandler):
         #self.handle_requires_action(event.data, run_id)
  
     #def handle_requires_action(self, data, run_id):
-        detalog.put({"log" : "handle_requires_action", "check" : data}, expire_in=120)
+        detalog.put({"log" : "handle_requires_action", "check" : event.data}, expire_in=120)
         tool_outputs = []
         
         for tool in event.data.required_action.submit_tool_outputs.tool_calls:
