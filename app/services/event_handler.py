@@ -87,8 +87,8 @@ class EventHandler(AsyncAssistantEventHandler):
                     else:
                         print(f"\nOutput Type: {output.type}", flush=True)
         elif delta.type == 'function':
-            detalog.put({"log" : "on_tool_call_delta - input", "check" : delta.function.input}, expire_in=120)
-            detalog.put({"log" : "on_tool_call_delta - output", "check" : delta.function.output}, expire_in=120)
+            detalog.put({"log" : "on_tool_call_delta - input", "check" : str(delta)}, expire_in=120)
+            detalog.put({"log" : "on_tool_call_delta - output", "check" : str(delta)}, expire_in=120)
             print(f"Delta Type: {delta.type}", flush=True)
         else:
             print(f"Delta Type: {delta.type} not supported", flush=True)
