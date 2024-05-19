@@ -46,8 +46,6 @@ class AssistantService:
         ) as stream:
             await stream.until_done()
 
-        
-
     async def create_gen(self, thread, stream_it: EventHandler):
         task = asyncio.create_task(self.run_stream(thread, stream_it))
         async for token in stream_it.aiter():
