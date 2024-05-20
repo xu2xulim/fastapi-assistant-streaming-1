@@ -54,7 +54,7 @@ class EventHandler(AsyncAssistantEventHandler):
 
     @override
     async def on_tool_call_delta(self, delta: ToolCallDelta, snapshot: ToolCall):
-        
+        detalog({"log" : "on_tool_call_delta", "check" : str(delta)}, expire_in=120) 
         if delta.type == "code_interpreter" and delta.code_interpreter:
             if delta.code_interpreter.input:
                 print(delta.code_interpreter.input, end="", flush=True)
@@ -64,7 +64,7 @@ class EventHandler(AsyncAssistantEventHandler):
                 if output.type == "logs":
                     print(f"\n{output.logs}", flush=True)
         elif delta.type == "function" and delta.function:
-            if delta.code_function.arguments:
+            if delta.function.arguments:
                 print(delta.function.arguments, end="", flush=True)
             if delta.code_function.outputs:
                 print(f"\n\noutput >", flush=True)
