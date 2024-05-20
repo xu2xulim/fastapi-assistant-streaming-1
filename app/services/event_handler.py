@@ -66,7 +66,7 @@ class EventHandler(AsyncAssistantEventHandler):
         elif delta.type == "function" and delta.function:
             if delta.function.arguments:
                 print(delta.function.arguments, end="", flush=True)
-            if delta.code_function.outputs:
+            if delta.function.outputs:
                 print(f"\n\noutput >", flush=True)
             for output in delta.function.outputs:
                 if output.type == "logs":
