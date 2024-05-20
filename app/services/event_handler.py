@@ -56,9 +56,9 @@ class EventHandler(AsyncAssistantEventHandler):
         
             for tool in event.data.required_action.submit_tool_outputs.tool_calls:
                 if tool.function.name == "get_random_digit":
-                    tool_outputs.append(json.dumps({"tool_call_id": tool.id, "output": "5"}))
+                    tool_outputs.append({"tool_call_id": tool.id, "output": "The random digit is 5"})
                 elif tool.function.name == "get_random_letter":
-                    tool_outputs.append(json.dumps({"tool_call_id": tool.id, "output": "X"}))
+                    tool_outputs.append({"tool_call_id": tool.id, "output": "The random letter is X"})
 
     # Submit all tool_outputs at the same time
     #submit_tool_outputs(tool_outputs, run_id)
@@ -66,6 +66,9 @@ class EventHandler(AsyncAssistantEventHandler):
     #def submit_tool_outputs(self, tool_outputs, run_id):    
             detalog.put({"log" : "submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
     # Use the submit_tool_outputs_stream helper
+            async for x in tool_outputs:
+                await self.on_text_delta({"value" : x['output']})
+
             """
             with self.client.beta.threads.runs.submit_tool_outputs_stream(
                 thread_id=x_thread_id,
