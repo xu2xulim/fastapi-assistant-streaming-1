@@ -3,6 +3,8 @@ from typing import AsyncIterator, Literal, Union, cast
 
 from openai import AsyncAssistantEventHandler
 from typing_extensions import override
+from openai.types.beta.threads import Text, TextDelta
+from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
 import os
 import json
 from deta import Deta
@@ -36,6 +38,39 @@ class EventHandler(AsyncAssistantEventHandler):
     async def on_end(self) -> None:
         """Fires when stream ends or when exception is thrown"""
         self.done.set()
+
+    # from https://github.com/openai/openai-python/blob/main/helpers.md
+    @override
+    async def on_text_created(self, text: Text) -> None:
+        print(f"\nassistant > ", end="", flush=True)
+
+    @override
+    async def on_text_delta(self, delta: TextDelta, snapshot: Text):
+        print(delta.value, end="", flush=True)
+
+    @override
+    async def on_tool_call_created(self, tool_call: ToolCall):
+        print(f"\nassistant > {tool_call.type}\n", flush=True)
+
+    @override
+    async def on_tool_call_delta(self, delta: ToolCallDelta, snapshot: ToolCall):
+        
+        if delta.type == "code_interpreter" and delta.code_interpreter:
+            if delta.code_interpreter.input:
+                print(delta.code_interpreter.input, end="", flush=True)
+            if delta.code_interpreter.outputs:
+                print(f"\n\noutput >", flush=True)
+            for output in delta.code_interpreter.outputs:
+                if output.type == "logs":
+                    print(f"\n{output.logs}", flush=True)
+        elif delta.type == "function" and delta.function:
+            if delta.code_function.arguments:
+                print(delta.function.arguments, end="", flush=True)
+            if delta.code_function.outputs:
+                print(f"\n\noutput >", flush=True)
+            for output in delta.function.outputs:
+                if output.type == "logs":
+                    print(f"\n{output.logs}", flush=True)
     
 
     async def aiter(self) -> AsyncIterator[str]:
