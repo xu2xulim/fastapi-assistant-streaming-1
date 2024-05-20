@@ -66,7 +66,7 @@ class EventHandler(AsyncAssistantEventHandler):
     #def submit_tool_outputs(self, tool_outputs, run_id):    
             detalog.put({"log" : "submit_tool_outputs", "check" : tool_outputs}, expire_in=120)
     # Use the submit_tool_outputs_stream helper
-            async for x in tool_outputs:
+            for x in tool_outputs:
                 await self.on_text_delta({"value" : x['output']})
 
             """
