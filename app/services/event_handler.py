@@ -58,7 +58,7 @@ class EventHandler(AsyncAssistantEventHandler):
                     tool_output = 123
                     tool_outputs.append({
                         "tool_call_id": tx.id,
-                        "output" : 123
+                        "output" : '123'
                     })
                     headers = {
                         "Content-Type": "application/json",
