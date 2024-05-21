@@ -45,7 +45,6 @@ class EventHandler(AsyncAssistantEventHandler):
     async def on_event(self, event: AssistantStreamEvent) -> None:
         if event.event == "thread.run.requires_action":
             print("\nthread.run.requires_action > submit tool call")
-            print(f"ARGS: {self.arguments}")
             detalog.put({"log" : "on_event", "check" : str(event)}, expire_in=120) 
 
 
