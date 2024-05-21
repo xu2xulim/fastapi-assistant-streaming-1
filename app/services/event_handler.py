@@ -41,19 +41,12 @@ class EventHandler(AsyncAssistantEventHandler):
 
     # from https://github.com/openai/openai-python/blob/main/helpers.md
     @override
-    async def on_text_created(self, text: Text) -> None:
-        print(f"\nassistant > ", end="", flush=True)
-
-    @override
-    async def on_text_delta(self, delta: TextDelta, snapshot: Text):
-        print(delta.value, end="", flush=True)
-
-    @override
     async def on_tool_call_created(self, tool_call: ToolCall):
         print(f"\nassistant > {tool_call.type}\n", flush=True)
 
     @override
     async def on_tool_call_delta(self, delta: ToolCallDelta, snapshot: ToolCall):
+        
         detalog.put({"log" : "on_tool_call_delta", "check" : str(delta)}, expire_in=120) 
         if delta.type == "code_interpreter" and delta.code_interpreter:
             if delta.code_interpreter.input:
@@ -68,10 +61,17 @@ class EventHandler(AsyncAssistantEventHandler):
                 print(delta.function.arguments, end="", flush=True)
             if delta.function.output:
                 print(f"\n\noutput >", flush=True)
-            for output in delta.function.output:
-                if output.type == "logs":
-                    print(f"\n{output.logs}", flush=True)
+            if delta.function.output != None:
+                for output in delta.function.output:
+                    if output.type == "logs":
+                        print(f"\n{output.logs}", flush=True)
+            else:
+                print(f"\noutput is None", flush=True)
     
+    @override
+    async def on_tool_call_done(self, tool_call: ToolCall) -> None:
+        detalog.put({"log" : "on_tool_call_delta", "check" : str(tool_call)}, expire_in=120)        
+        return
 
     async def aiter(self) -> AsyncIterator[str]:
         while not self.queue.empty() or not self.done.is_set():
