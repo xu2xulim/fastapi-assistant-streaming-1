@@ -66,7 +66,7 @@ class EventHandler(AsyncAssistantEventHandler):
 
                 
                 detalog.put({"log" : "on_event", "check" : event.data.id}, expire_in=120)
-                detalog.put({"log" : "on_event", "check" : self.current_run.thread.thread_id}, expire_in=120)
+                detalog.put({"log" : "on_event", "check" : event.data.thread_id}, expire_in=120)
 
 
     # from https://github.com/openai/openai-python/blob/main/helpers.md
