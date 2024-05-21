@@ -45,7 +45,8 @@ class EventHandler(AsyncAssistantEventHandler):
     async def on_event(self, event: AssistantStreamEvent) -> None:
         if event.event == "thread.run.requires_action":
             print("\nthread.run.requires_action > submit tool call")
-            detalog.put({"log" : "on_event", "check" : str(event)}, expire_in=120) 
+            attrs = vars(event)
+            detalog.put({"log" : "on_event", "check" : ", ".join('%s: %s' % item for item in attrs.items())}, expire_in=120) 
 
 
     # from https://github.com/openai/openai-python/blob/main/helpers.md
