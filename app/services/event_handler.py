@@ -8,6 +8,7 @@ from openai.types.beta.threads import Text, TextDelta
 from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
 import os
 import json
+import requests
 from deta import Deta
 DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
 detalog = Deta(DETA_DATA_KEY).Base('assistant')
@@ -58,6 +59,10 @@ class EventHandler(AsyncAssistantEventHandler):
                         "tool_call_id": tx.id,
                         "output" : json.dumps(tool_output)
                     })
+                    headers = {
+                        "Content-Type: application/json",
+                        "OpenAI-Beta: assistants=v2"}
+                    res = requests.post("https://api.openai.com/v1/threads/{self.current_run.thread.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs}, headers=headers)
 
                 detalog.put({"log" : "on_event", "check" : event.data.required_action.submit_tool_outputs.tool_calls}, expire_in=120) 
 
