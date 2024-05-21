@@ -64,7 +64,7 @@ class EventHandler(AsyncAssistantEventHandler):
                         "Content-Type": "application/json",
                         "OpenAI-Beta" : "assistants=v2",
                         "Authorization" : f"Bearer {OPENAI_API_KEY}"}
-                    res = requests.post("https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", data={"tool_outputs" : tool_outputs}, headers=headers)
+                    res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", data={"tool_outputs" : tool_outputs}, headers=headers)
                     detalog.put({"log" : "submit_tool_outputs", "check" : res.text}, expire_in=120)
                 
                 detalog.put({"log" : "on_event", "check" : event.data.id}, expire_in=120)
