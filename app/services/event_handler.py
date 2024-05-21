@@ -12,6 +12,7 @@ import requests
 from deta import Deta
 DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
 detalog = Deta(DETA_DATA_KEY).Base('assistant')
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 
 class EventHandler(AsyncAssistantEventHandler):
@@ -61,7 +62,8 @@ class EventHandler(AsyncAssistantEventHandler):
                     })
                     headers = {
                         "Content-Type": "application/json",
-                        "OpenAI-Beta" : "assistants=v2"}
+                        "OpenAI-Beta" : "assistants=v2",
+                        "Authorization" : f"Bearer {OPENAI_API_KEY}"}
                     res = requests.post("https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs}, headers=headers)
 
                 
