@@ -1,7 +1,7 @@
 import asyncio
 from typing import AsyncIterator, Literal, Union, cast
 
-from openai import AsyncAssistantEventHandler
+from openai import AsyncAssistantEventHandler, AssistantStreamEvent
 from typing_extensions import override
 from openai.types.beta.threads import Text, TextDelta
 from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
@@ -40,6 +40,14 @@ class EventHandler(AsyncAssistantEventHandler):
         detalog.put({"log" : "on_end", "check" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
         self.done.set()
 
+    @override
+    async def on_event(self, event: AssistantStreamEvent) -> None:
+        if event.event == "thread.run.requires_action":
+            print("\nthread.run.requires_action > submit tool call")
+            print(f"ARGS: {self.arguments}")
+            detalog.put({"log" : "on_event", "check" : str(event)}, expire_in=120) 
+
+
     # from https://github.com/openai/openai-python/blob/main/helpers.md
     @override
     async def on_tool_call_created(self, tool_call: ToolCall):
@@ -71,7 +79,7 @@ class EventHandler(AsyncAssistantEventHandler):
     
     @override
     async def on_tool_call_done(self, tool_call: ToolCall) -> None:
-        detalog.put({"log" : "on_tool_call_delta", "check" : str(tool_call)}, expire_in=120)        
+        detalog.put({"log" : "on_tool_call_done", "check" : str(tool_call)}, expire_in=120)        
         return
 
     async def aiter(self) -> AsyncIterator[str]:
