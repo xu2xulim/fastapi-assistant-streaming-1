@@ -46,6 +46,24 @@ class EventHandler(AsyncAssistantEventHandler):
     async def on_event(self, event: AssistantStreamEvent) -> None:
         if event.event == "thread.run.requires_action":
             print("\nthread.run.requires_action > submit tool call")
+            if event.data.required_action and event.data.required_action.type == 'submit_tool_outputs':
+                tools_called = event.data.required_action.submit_tool_outputs.tool_calls
+                tool_outputs = []
+                for tx in tools_called :
+                    tool_name = tx.function.name
+                    tool_args = tx.function.arguments
+                    tool_output = {"status" : "success"}
+                    tool_outputs.append({
+                        "tool_call_id": tx.id,
+                        "output" : json.dumps(tool_output)
+                    })
+
+                    stream = self.client.beta.threads.runs.submitToolOutputsStream(
+                        self.current_run.thread.id,
+                        event.data.id,
+                    {
+        }
+    )
             try:
                 attrs = vars(event)
                 detalog.put({"log" : "on_event", "check" : event.required_action.tools_call}, expire_in=120) 
