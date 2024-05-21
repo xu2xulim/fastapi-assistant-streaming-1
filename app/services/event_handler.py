@@ -55,16 +55,16 @@ class EventHandler(AsyncAssistantEventHandler):
                 for tx in tools_called :
                     tool_name = tx.function.name
                     tool_args = tx.function.arguments
-                    tool_output = {"status" : "success"}
+                    tool_output = 123
                     tool_outputs.append({
                         "tool_call_id": tx.id,
-                        "output" : json.dumps(tool_output)
+                        "output" : 123
                     })
                     headers = {
                         "Content-Type": "application/json",
                         "OpenAI-Beta" : "assistants=v2",
                         "Authorization" : f"Bearer {OPENAI_API_KEY}"}
-                    res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", data={"tool_outputs" : tool_outputs}, headers=headers)
+                    res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs}, headers=headers)
                     detalog.put({"log" : "submit_tool_outputs", "check" : res.text}, expire_in=120)
                 
                 detalog.put({"log" : "on_event", "check" : event.data.id}, expire_in=120)
