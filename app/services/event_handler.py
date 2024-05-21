@@ -38,16 +38,19 @@ class EventHandler(AsyncAssistantEventHandler):
     @override
     async def on_end(self) -> None:
         """Fires when stream ends or when exception is thrown"""
-        detalog.put({"log" : "on_end", "check" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
+            detalog.put({"log" : "on_end", "check" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
+    
         self.done.set()
 
     @override
     async def on_event(self, event: AssistantStreamEvent) -> None:
         if event.event == "thread.run.requires_action":
             print("\nthread.run.requires_action > submit tool call")
-            attrs = vars(event)
-            detalog.put({"log" : "on_event", "check" : ", ".join('%s: %s' % item for item in attrs.items())}, expire_in=120) 
-
+            try:
+                attrs = vars(event)
+                detalog.put({"log" : "on_event", "check" : event.required_action.tools_call}, expire_in=120) 
+            except:
+                print("testing")
 
     # from https://github.com/openai/openai-python/blob/main/helpers.md
     @override
