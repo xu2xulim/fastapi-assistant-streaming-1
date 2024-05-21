@@ -1,7 +1,8 @@
 import asyncio
 from typing import AsyncIterator, Literal, Union, cast
 
-from openai import AsyncAssistantEventHandler, AssistantStreamEvent
+from openai import AsyncAssistantEventHandler
+from openai.types.beta import AssistantStreamEvent
 from typing_extensions import override
 from openai.types.beta.threads import Text, TextDelta
 from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
