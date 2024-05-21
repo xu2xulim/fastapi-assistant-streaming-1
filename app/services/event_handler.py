@@ -38,7 +38,7 @@ class EventHandler(AsyncAssistantEventHandler):
     @override
     async def on_end(self) -> None:
         """Fires when stream ends or when exception is thrown"""
-            detalog.put({"log" : "on_end", "check" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
+        detalog.put({"log" : "on_end", "check" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
     
         self.done.set()
 
