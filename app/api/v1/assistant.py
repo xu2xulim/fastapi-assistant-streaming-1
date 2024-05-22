@@ -41,7 +41,7 @@ class Query(BaseModel):
     text: str
     thread_id: str
 
-
+#
 @router.post("/assistant/chat")
 async def chat(
     query: Query = Body(...),
