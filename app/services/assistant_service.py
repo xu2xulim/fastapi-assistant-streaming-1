@@ -37,6 +37,15 @@ class AssistantService:
             content=content,
         )
         return message
+    
+    async def handle_tool_outputs(self, thread_id, run_id, tool_outputs):
+        async with self.client.beta.threads.runs.submit_tool_outputs_stream(
+            thread_id=thread_id, 
+            run_id=run_id, 
+            tool_outputs=tool_outputs,
+            event_handler=EventHandler()
+        ) as stream:
+            await stream.until_done()
 
     async def run_stream(self, thread, stream_it: EventHandler):
         async with self.client.beta.threads.runs.stream(
