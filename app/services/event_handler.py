@@ -68,7 +68,7 @@ class EventHandler(AsyncAssistantEventHandler):
                     tool_outputs=tool_outputs,
                     event_handler=EventHandler()
                 ) as stream2:
-                    detalog.put({"log" : "stream2", "check" : str(stream2)}, expire_in=120)
+                    #detalog.put({"log" : "stream2", "check" : str(stream2)}, expire_in=120)
                     await stream2.until_done()
 
                     """
