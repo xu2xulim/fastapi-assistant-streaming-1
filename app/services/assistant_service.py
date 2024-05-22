@@ -5,6 +5,7 @@ from openai import AsyncOpenAI
 from app.core.config import settings
 from app.services.event_handler import EventHandler
 
+
  
 class AssistantService:
     client: AsyncOpenAI

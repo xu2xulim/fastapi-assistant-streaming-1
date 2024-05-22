@@ -6,9 +6,12 @@ from openai.types.beta import AssistantStreamEvent
 from typing_extensions import override
 from openai.types.beta.threads import Text, TextDelta
 from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
+
+from app.services.assistant_service import handle_tool_outputs
+
 import os
 import json
-import requests
+#import requests
 from deta import Deta
 DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
 detalog = Deta(DETA_DATA_KEY).Base('assistant')
@@ -62,7 +65,7 @@ class EventHandler(AsyncAssistantEventHandler):
                     })
 
                 detalog.put({"log" : "stream2", "check" : tool_outputs}, expire_in=120)    
-                await self.handle_tool_outputs(event.data.thread_id, event.data.id, tool_outputs)
+                await handle_tool_outputs(event.data.thread_id, event.data.id, tool_outputs)
                 """
                     headers = {
                         "Content-Type": "application/json",
