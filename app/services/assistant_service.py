@@ -5,8 +5,6 @@ from openai import AsyncOpenAI
 from app.core.config import settings
 from app.services.event_handler import EventHandler
 
-
- 
 class AssistantService:
     client: AsyncOpenAI
     assistant_id: str
@@ -38,7 +36,7 @@ class AssistantService:
             content=content,
         )
         return message
-    
+    """
     async def handle_tool_outputs(self, thread_id, run_id, tool_outputs):
         async with self.client.beta.threads.runs.submit_tool_outputs_stream(
             thread_id=thread_id, 
@@ -47,7 +45,7 @@ class AssistantService:
             event_handler=EventHandler()
         ) as stream:
             await stream.until_done()
-
+    """
     async def run_stream(self, thread, stream_it: EventHandler):
         async with self.client.beta.threads.runs.stream(
             thread_id=thread.id,

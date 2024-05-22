@@ -7,11 +7,9 @@ from typing_extensions import override
 from openai.types.beta.threads import Text, TextDelta
 from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
 
-from app.services.assistant_service import handle_tool_outputs
-
 import os
 import json
-#import requests
+import requests
 from deta import Deta
 DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
 detalog = Deta(DETA_DATA_KEY).Base('assistant')
@@ -65,15 +63,14 @@ class EventHandler(AsyncAssistantEventHandler):
                     })
 
                 detalog.put({"log" : "stream2", "check" : tool_outputs}, expire_in=120)    
-                await handle_tool_outputs(event.data.thread_id, event.data.id, tool_outputs)
-                """
-                    headers = {
-                        "Content-Type": "application/json",
-                        "OpenAI-Beta" : "assistants=v2",
-                        "Authorization" : f"Bearer {OPENAI_API_KEY}"}
-                """
-                    #res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs}, headers=headers)
-                detalog.put({"log" : "submit_tool_outputs", "check" : "Reached here"}, expire_in=120)
+                
+                headers = {
+                    "Content-Type": "application/json",
+                    "OpenAI-Beta" : "assistants=v2",
+                    "Authorization" : f"Bearer {OPENAI_API_KEY}"}
+                
+                res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
+                detalog.put({"log" : "submit_tool_outputs", "check" : res.text}, expire_in=120)
 
                 detalog.put({"log" : "on_event", "check" : event.data.id}, expire_in=120)
                 detalog.put({"log" : "on_event", "check" : event.data.thread_id}, expire_in=120)
