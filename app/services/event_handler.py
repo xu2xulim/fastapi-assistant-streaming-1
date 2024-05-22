@@ -65,8 +65,7 @@ class EventHandler(AsyncAssistantEventHandler):
                 self.client.beta.threads.runs.submit_tool_outputs_stream(
                     thread_id=event.data.thread_id, 
                     run_id=event.data.id, 
-                    tool_outputs=tool_outputs,
-                    event_handler=EventHandler()
+                    tool_outputs=tool_outputs
                 )
 
                     """
