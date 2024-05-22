@@ -61,12 +61,12 @@ class EventHandler(AsyncAssistantEventHandler):
                         "output" : '123'
                     })
 
-                detalog.put({"log" : "stream2", "check" : "Here before stream"}, expire_in=120)    
+                detalog.put({"log" : "stream2", "check" : tool_output}, expire_in=120)    
                 with self.client.beta.threads.runs.submit_tool_outputs_stream(
                     thread_id=event.data.thread_id, 
                     run_id=event.data.id, 
                     tool_outputs=tool_outputs,
-                    event_handler=self.EventHandler()
+                    event_handler=EventHandler()
                 ) as stream2:
                     detalog.put({"log" : "stream2", "check" : str(stream2)}, expire_in=120)
                     await stream2.until_done()
