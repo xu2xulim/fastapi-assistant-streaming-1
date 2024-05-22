@@ -60,13 +60,15 @@ class EventHandler(AsyncAssistantEventHandler):
                         "tool_call_id": tx.id,
                         "output" : '123'
                     })
-                    with self.client.beta.threads.runs.submit_tool_outputs_stream(
-                        thread_id=event.data.thread_id, 
-                        run_id=event.data.id, 
-                        tool_outputs=tool_outputs, 
-                        event_handler=EventHandler()
-                    ) as stream2:
-                        await stream2.until_done()
+                with self.client.beta.threads.runs.submit_tool_outputs_stream(
+                    thread_id=event.data.thread_id, 
+                    run_id=event.data.id, 
+                    tool_outputs=tool_outputs 
+                    #event_handler=EventHandler()
+                ) as stream2:
+                    detalog.put({"log" : "stream2", "check" : str(stream2)}, expire_in=120)
+                    await stream2.until_done()
+
                     """
                     headers = {
                         "Content-Type": "application/json",
