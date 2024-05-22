@@ -60,12 +60,21 @@ class EventHandler(AsyncAssistantEventHandler):
                         "tool_call_id": tx.id,
                         "output" : '123'
                     })
+                    with self.client.beta.threads.runs.submit_tool_outputs_stream(
+                        thread_id=event.data.thread_id, 
+                        run_id=event.data.id, 
+                        tool_outputs=tool_outputs, 
+                        event_handler=EventHandler()
+                    ) as stream2:
+                        await stream2.until_done()
+                    """
                     headers = {
                         "Content-Type": "application/json",
                         "OpenAI-Beta" : "assistants=v2",
                         "Authorization" : f"Bearer {OPENAI_API_KEY}"}
-                    res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs}, headers=headers)
-                    detalog.put({"log" : "submit_tool_outputs", "check" : res.text}, expire_in=120)
+                    """
+                    #res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs}, headers=headers)
+                    detalog.put({"log" : "submit_tool_outputs", "check" : "Reached here"}, expire_in=120)
 
                 detalog.put({"log" : "on_event", "check" : event.data.id}, expire_in=120)
                 detalog.put({"log" : "on_event", "check" : event.data.thread_id}, expire_in=120)
