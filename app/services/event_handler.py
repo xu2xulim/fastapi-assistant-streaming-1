@@ -74,6 +74,7 @@ class EventHandler(AsyncAssistantEventHandler):
 
                 detalog.put({"log" : "on_event", "check" : event.data.id}, expire_in=120)
                 detalog.put({"log" : "on_event", "check" : event.data.thread_id}, expire_in=120)
+                self.Even
 
 
     # from https://github.com/openai/openai-python/blob/main/helpers.md
@@ -84,10 +85,6 @@ class EventHandler(AsyncAssistantEventHandler):
 
     @override
     async def on_tool_call_delta(self, delta: ToolCallDelta, snapshot: ToolCall):
-        try:
-            detalog.put({"log" : "Is event available", "check" : str(self.event)}, expire_in=120) 
-        except:
-            pass
         
         detalog.put({"log" : "on_tool_call_delta", "check" : str(delta)}, expire_in=120) 
         if delta.type == "code_interpreter" and delta.code_interpreter:

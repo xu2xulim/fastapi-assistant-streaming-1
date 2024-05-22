@@ -52,6 +52,7 @@ async def chat(
     await assistant_service.create_message(thread.id, query.text)
 
     stream_it = EventHandler()
-    gen = assistant_service.create_gen(thread, stream_it)
+    #gen = assistant_service.create_gen(thread, stream_it)
+    gen = assistant_service.run_stream(thread, stream_it)
 
     return StreamingResponse(gen, media_type="text/event-stream")
