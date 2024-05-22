@@ -79,10 +79,15 @@ class EventHandler(AsyncAssistantEventHandler):
     # from https://github.com/openai/openai-python/blob/main/helpers.md
     @override
     async def on_tool_call_created(self, tool_call: ToolCall):
+
         print(f"\nassistant > {tool_call.type}\n", flush=True)
 
     @override
     async def on_tool_call_delta(self, delta: ToolCallDelta, snapshot: ToolCall):
+        try:
+            detalog.put({"log" : "Is event available", "check" : str(self.event)}, expire_in=120) 
+        except:
+            pass
         
         detalog.put({"log" : "on_tool_call_delta", "check" : str(delta)}, expire_in=120) 
         if delta.type == "code_interpreter" and delta.code_interpreter:
