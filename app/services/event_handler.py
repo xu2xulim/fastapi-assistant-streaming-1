@@ -73,7 +73,7 @@ class EventHandler(AsyncAssistantEventHandler):
                 try:
                     self.queue.put_nowait(f"I am faking this output")
                     
-                    for ex in res.text.split("\n\n"):
+                    for ex in str(res.text).split("\n\n"):
                         if "thread.message.completed" in ex:
                             found = json.loads(ex.split("\n")[1].split("data: ")[1])
                             print(found.keys())
