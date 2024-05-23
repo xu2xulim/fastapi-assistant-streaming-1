@@ -56,7 +56,7 @@ class EventHandler(AsyncAssistantEventHandler):
             if event.data.required_action and event.data.required_action.type == 'submit_tool_outputs':
                 tools_called = event.data.required_action.submit_tool_outputs.tool_calls
                 tool_outputs = []
-                characters = string.letters
+                characters = string.ascii_letters
                 for tx in tools_called :
                     tool_name = tx.function.name
                     tool_args = tx.function.arguments
