@@ -71,10 +71,10 @@ class EventHandler(AsyncAssistantEventHandler):
                 
                 res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs}, headers=headers)
                 try:
-                    self.queue.put_nowait(f"I am faking this output {res.blob().on_event}")
+                    self.queue.put_nowait(f"I am faking this output {res.blob()}")
                 except:
                     pass
-                detalog.put({"log" : "submit_tool_outputs", "check" : str(res.content)}, expire_in=120)
+                detalog.put({"log" : "submit_tool_outputs", "check" : str(res.text)}, expire_in=120)
 
                 detalog.put({"log" : "on_event", "check" : event.data.id}, expire_in=120)
                 detalog.put({"log" : "on_event", "check" : event.data.thread_id}, expire_in=120)
