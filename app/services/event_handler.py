@@ -59,6 +59,8 @@ class EventHandler(AsyncAssistantEventHandler):
                     tool_args = tx.function.arguments
                     if tool_name == "get_random_digit":
                         tool_output = randrange(10)
+                    elif tool_name == "get_random_letters":
+                        tool_output = "X"
                     else:
                         tool_output = "Dummy"
                     
