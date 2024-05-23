@@ -56,10 +56,10 @@ class EventHandler(AsyncAssistantEventHandler):
                 for tx in tools_called :
                     tool_name = tx.function.name
                     tool_args = tx.function.arguments
-                    tool_output = 123
+                    tool_output = 93
                     tool_outputs.append({
                         "tool_call_id": tx.id,
-                        "output" : '123'
+                        "output" : str(tool_output)
                     })
 
                 detalog.put({"log" : "stream2", "check" : tool_outputs}, expire_in=120)    
@@ -72,9 +72,10 @@ class EventHandler(AsyncAssistantEventHandler):
                 res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
                 try:
                     self.queue.put_nowait(f"I am faking this output")
-                    for event in res.text.split("\n\n"):
-                        if "thread.message.completed" in event:
-                            found = json.loads(event.split("\n")[1].split("data: ")[1])
+                    
+                    for ex in res.text.split("\n\n"):
+                        if "thread.message.completed" in ex:
+                            found = json.loads(ex.split("\n")[1].split("data: ")[1])
                             print(found.keys())
                             self.queue.put_nowait(f"I am faking this output {found['content'][0]['text']['value']}")
                 except:
