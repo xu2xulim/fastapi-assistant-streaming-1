@@ -69,11 +69,9 @@ class EventHandler(AsyncAssistantEventHandler):
                     "OpenAI-Beta" : "assistants=v2",
                     "Authorization" : f"Bearer {OPENAI_API_KEY}"}
                 
-                res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs}, headers=headers)
+                res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
                 try:
-                    stream_event = AssistantStreamEvent(res.text)
-                    detalog.put({"log" : "stream_event", "check" : str(stream_event)}, expire_in=120)
-                    self.queue.put_nowait(f"I am faking this output {stream_event.message}")
+                    self.queue.put_nowait(f"I am faking this output {res.text}")
                 except:
                     pass
                 detalog.put({"log" : "submit_tool_outputs", "check" : str(res.content)}, expire_in=120)
