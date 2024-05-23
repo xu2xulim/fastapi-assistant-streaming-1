@@ -78,7 +78,7 @@ class EventHandler(AsyncAssistantEventHandler):
                     
                     for ex in str(res.text).split("\n\n"):
                         if "thread.message.completed" in ex:
-                            detalog.put({"log" : "thread.message.completed", "check" : str(ev)}, expire_in=120) 
+                            detalog.put({"log" : "thread.message.completed", "check" : str(ex)}, expire_in=120) 
                             found = json.loads(ex.split("\n")[1].split("data: ")[1])
                             self.queue.put_nowait(found['content'][0]['text']['value'])
                             break
