@@ -70,6 +70,7 @@ class EventHandler(AsyncAssistantEventHandler):
                     "Authorization" : f"Bearer {OPENAI_API_KEY}"}
                 
                 res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
+                self.queue.put_nowait("I am faking this output")
                 detalog.put({"log" : "submit_tool_outputs", "check" : res.text}, expire_in=120)
 
                 detalog.put({"log" : "on_event", "check" : event.data.id}, expire_in=120)
