@@ -74,10 +74,11 @@ class EventHandler(AsyncAssistantEventHandler):
                     self.queue.put_nowait(f"I am faking this output")
                     
                     for ex in str(res.text).split("\n\n"):
+                        print(ex)
                         if "thread.message.completed" in ex:
                             found = json.loads(ex.split("\n")[1].split("data: ")[1])
                             print(found.keys())
-                            self.queue.put_nowait(f"I am faking this output {found['content'][0]['text']['value']}")
+                            self.queue.put_nowait(found['content'][0]['text']['value'])
                 except:
                     pass
                 detalog.put({"log" : "submit_tool_outputs", "check" : str(res.text)}, expire_in=120)
