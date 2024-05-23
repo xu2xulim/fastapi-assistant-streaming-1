@@ -4,7 +4,6 @@ from typing import AsyncIterator, Literal, Union, cast
 from openai import AsyncAssistantEventHandler
 from openai.types.beta import AssistantStreamEvent
 from typing_extensions import override
-from openai.types.beta.threads import Text, TextDelta
 from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
 
 import os
@@ -58,13 +57,15 @@ class EventHandler(AsyncAssistantEventHandler):
                 for tx in tools_called :
                     tool_name = tx.function.name
                     tool_args = tx.function.arguments
-                    tool_output = randrange(10)
+                    if tool_name == "get_random_digit":
+                        tool_output = randrange(10)
+                    else:
+                        tool_output = "Dummy"
+                    
                     tool_outputs.append({
                         "tool_call_id": tx.id,
                         "output" : str(tool_output)
                     })
-
-                detalog.put({"log" : "stream2", "check" : tool_outputs}, expire_in=120)    
                 
                 headers = {
                     "Content-Type": "application/json",
@@ -76,19 +77,12 @@ class EventHandler(AsyncAssistantEventHandler):
                     
                     for ex in str(res.text).split("\n\n"):
                         if "thread.message.completed" in ex:
-                            print(f"found {ex}")
                             found = json.loads(ex.split("\n")[1].split("data: ")[1])
-                            #print(found.keys())
                             self.queue.put_nowait(found['content'][0]['text']['value'])
                             break
                 except:
                     pass
-                #detalog.put({"log" : "submit_tool_outputs", "check" : str(res.text)}, expire_in=120)
-
-                #detalog.put({"log" : "on_event", "check" : event.data.id}, expire_in=120)
-                #detalog.put({"log" : "on_event", "check" : event.data.thread_id}, expire_in=120)
                 
-
 
     # from https://github.com/openai/openai-python/blob/main/helpers.md
     @override
