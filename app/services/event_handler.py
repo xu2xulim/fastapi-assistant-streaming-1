@@ -71,7 +71,7 @@ class EventHandler(AsyncAssistantEventHandler):
                 
                 res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs}, headers=headers)
                 try:
-                    self.queue.put_nowait(f"I am faking this output {res.blob().message}")
+                    self.queue.put_nowait(f"I am faking this output {res.blob().on_event}")
                 except:
                     pass
                 detalog.put({"log" : "submit_tool_outputs", "check" : str(res.content)}, expire_in=120)
@@ -111,10 +111,10 @@ class EventHandler(AsyncAssistantEventHandler):
             else:
                 print(f"\noutput is None", flush=True)
     
-    @override
-    async def on_tool_call_done(self, tool_call: ToolCall) -> None:
-        detalog.put({"log" : "on_tool_call_done", "check" : str(tool_call)}, expire_in=120)        
-        return
+    #@override
+    #async def on_tool_call_done(self, tool_call: ToolCall) -> None:
+        #detalog.put({"log" : "on_tool_call_done", "check" : str(tool_call)}, expire_in=120)        
+        #return
 
     async def aiter(self) -> AsyncIterator[str]:
         while not self.queue.empty() or not self.done.is_set():
