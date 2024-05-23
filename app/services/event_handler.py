@@ -10,6 +10,8 @@ from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
 import os
 import json
 import requests
+from random import randrange
+
 from deta import Deta
 DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
 detalog = Deta(DETA_DATA_KEY).Base('assistant')
@@ -56,7 +58,7 @@ class EventHandler(AsyncAssistantEventHandler):
                 for tx in tools_called :
                     tool_name = tx.function.name
                     tool_args = tx.function.arguments
-                    tool_output = 93
+                    tool_output = randrange(10)
                     tool_outputs.append({
                         "tool_call_id": tx.id,
                         "output" : str(tool_output)
