@@ -9,7 +9,9 @@ from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
 import os
 import json
 import requests
-from random import randrange
+import random
+import string
+
 
 from deta import Deta
 DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
@@ -54,13 +56,14 @@ class EventHandler(AsyncAssistantEventHandler):
             if event.data.required_action and event.data.required_action.type == 'submit_tool_outputs':
                 tools_called = event.data.required_action.submit_tool_outputs.tool_calls
                 tool_outputs = []
+                characters = string.letters
                 for tx in tools_called :
                     tool_name = tx.function.name
                     tool_args = tx.function.arguments
                     if tool_name == "get_random_digit":
-                        tool_output = randrange(10)
+                        tool_output = random.randrange(10)
                     elif tool_name == "get_random_letters":
-                        tool_output = "X"
+                        tool_output = random.choice(characters)
                     else:
                         tool_output = "Dummy"
                     
