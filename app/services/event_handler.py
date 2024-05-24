@@ -66,7 +66,7 @@ class EventHandler(AsyncAssistantEventHandler):
                         idx = json.loads(tool_args)['count']
                         tool_output = ""
                         for ix in range(idx):
-                            tool_output += tool_output + random.choice(characters)
+                            tool_output = tool_output + random.choice(characters)
                         
                         detalog.put({"log" : "count and output", "check" : f"{idx} and {tool_output}"}, expire_in=120) 
                     else:
