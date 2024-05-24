@@ -60,6 +60,7 @@ class EventHandler(AsyncAssistantEventHandler):
                 for tx in tools_called :
                     tool_name = tx.function.name
                     tool_args = tx.function.arguments
+                    detalog.put({"log" : "tool args", "check" : str(tool_args)}, expire_in=120) 
                     if tool_name == "get_random_digit":
                         tool_output = random.randrange(10)
                     elif tool_name == "get_random_letters":
@@ -111,18 +112,20 @@ class EventHandler(AsyncAssistantEventHandler):
             for output in delta.code_interpreter.outputs:
                 if output.type == "logs":
                     print(f"\n{output.logs}", flush=True)
+        """
         elif delta.type == "function" and delta.function:
             if delta.function.arguments:
-                print(delta.function.arguments, end="", flush=True)
+                print(f"\n\narguments {json.loads(delta.function.arguments)}", end="", flush=True)
             if delta.function.output:
                 print(f"\n\noutput >", flush=True)
             if delta.function.output != None:
                 for output in delta.function.output:
-                    if output.type == "logs":
-                        print(f"\n{output.logs}", flush=True)
+                    #if output.type == "logs":
+                    print(f"\n{output.type}", flush=True)
+
             else:
                 print(f"\noutput is None", flush=True)
-    
+        """
     #@override
     #async def on_tool_call_done(self, tool_call: ToolCall) -> None:
         #detalog.put({"log" : "on_tool_call_done", "check" : str(tool_call)}, expire_in=120)        
