@@ -60,11 +60,12 @@ class EventHandler(AsyncAssistantEventHandler):
                 for tx in tools_called :
                     tool_name = tx.function.name
                     tool_args = tx.function.arguments
-                    detalog.put({"log" : "tool args", "check" : str(tool_args)}, expire_in=120) 
                     if tool_name == "get_random_digit":
                         tool_output = random.randrange(10)
                     elif tool_name == "get_random_letters":
-                        tool_output = random.choice(characters)
+                        idx = json.loads(tool_args)['count']
+                        tool_output = characters[int(idx)]
+                        detalog.put({"log" : "count and output", "check" : f"{idx} and {tool_output}"}, expire_in=120) 
                     else:
                         tool_output = "Dummy"
                     
