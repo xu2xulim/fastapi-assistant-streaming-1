@@ -64,7 +64,10 @@ class EventHandler(AsyncAssistantEventHandler):
                         tool_output = random.randrange(10)
                     elif tool_name == "get_random_letters":
                         idx = json.loads(tool_args)['count']
-                        tool_output = characters[int(idx)]
+                        tool_output = ""
+                        for ix in range(idx):
+                            tool_output += tool_output + random.choice(characters)
+                        
                         detalog.put({"log" : "count and output", "check" : f"{idx} and {tool_output}"}, expire_in=120) 
                     else:
                         tool_output = "Dummy"
@@ -103,9 +106,9 @@ class EventHandler(AsyncAssistantEventHandler):
 
     @override
     async def on_tool_call_delta(self, delta: ToolCallDelta, snapshot: ToolCall):
-        
-        detalog.put({"log" : "on_tool_call_delta", "check" : str(delta)}, expire_in=120) 
+         
         if delta.type == "code_interpreter" and delta.code_interpreter:
+            detalog.put({"log" : "on_tool_call_delta", "check" : str(delta)}, expire_in=120) 
             if delta.code_interpreter.input:
                 print(delta.code_interpreter.input, end="", flush=True)
             if delta.code_interpreter.outputs:
@@ -113,8 +116,10 @@ class EventHandler(AsyncAssistantEventHandler):
             for output in delta.code_interpreter.outputs:
                 if output.type == "logs":
                     print(f"\n{output.logs}", flush=True)
-        """
+        
         elif delta.type == "function" and delta.function:
+            detalog.put({"log" : "on_tool_call_delta", "check" : str(delta)}, expire_in=120) 
+        """
             if delta.function.arguments:
                 print(f"\n\narguments {json.loads(delta.function.arguments)}", end="", flush=True)
             if delta.function.output:
