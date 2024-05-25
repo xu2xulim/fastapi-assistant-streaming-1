@@ -6,6 +6,7 @@ from app.dependencies.common import get_assistant_service
 from app.services.assistant_service import AssistantService
 from app.services.event_handler import EventHandler
 
+
 router = APIRouter()
 
 

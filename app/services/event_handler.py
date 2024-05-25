@@ -108,7 +108,7 @@ class EventHandler(AsyncAssistantEventHandler):
     async def on_tool_call_delta(self, delta: ToolCallDelta, snapshot: ToolCall):
          
         if delta.type == "code_interpreter" and delta.code_interpreter:
-            detalog.put({"log" : "on_tool_call_delta", "check" : str(delta)}, expire_in=120) 
+            detalog.put({"log" : "code_interpreter on_tool_call_delta", "check" : str(delta)}, expire_in=120) 
             if delta.code_interpreter.input:
                 print(delta.code_interpreter.input, end="", flush=True)
             if delta.code_interpreter.outputs:
@@ -118,7 +118,7 @@ class EventHandler(AsyncAssistantEventHandler):
                     print(f"\n{output.logs}", flush=True)
         
         elif delta.type == "function" and delta.function:
-            detalog.put({"log" : "on_tool_call_delta", "check" : str(delta)}, expire_in=120) 
+            detalog.put({"log" : "function on_tool_call_delta", "check" : str(delta)}, expire_in=120) 
         """
             if delta.function.arguments:
                 print(f"\n\narguments {json.loads(delta.function.arguments)}", end="", flush=True)
