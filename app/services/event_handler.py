@@ -83,12 +83,12 @@ class EventHandler(AsyncAssistantEventHandler):
                     "Authorization" : f"Bearer {OPENAI_API_KEY}"}
                 
                 res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
-                detalog.put({"log" : "res_text", "check" : str(res.text)}, expire_in=120) 
+                #detalog.put({"log" : "res_text", "check" : str(res.text)}, expire_in=120) 
                 try:
                     if res.status_code == 200:
                         for ex in str(res.text).split("\n\n"):
                             if "thread.message.completed" in ex:
-                                #detalog.put({"log" : "thread.message.completed", "check" : str(ex)}, expire_in=120) 
+                                detalog.put({"log" : "thread.message.completed", "check" : str(ex)}, expire_in=120) 
                                 found = json.loads(ex.split("\n")[1].split("data: ")[1])
                                 self.queue.put_nowait(found['content'][0]['text']['value'])
                                 break
