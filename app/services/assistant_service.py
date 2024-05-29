@@ -46,16 +46,18 @@ class AssistantService:
         ) as stream:
             await stream.until_done()
     """
-    async def run_stream(self, thread, stream_it: EventHandler):
+    async def run_stream(self, thread, stream_it: EventHandler, additional_instructions ):
+
         async with self.client.beta.threads.runs.stream(
             thread_id=thread.id,
             assistant_id=self.assistant_id,
             event_handler=stream_it,
+            additional_instructions=additional_instructions,
         ) as stream:
             await stream.until_done()
 
-    async def create_gen(self, thread, stream_it: EventHandler):
-        task = asyncio.create_task(self.run_stream(thread, stream_it))
+    async def create_gen(self, thread, stream_it: EventHandler, additional_instructions):
+        task = asyncio.create_task(self.run_stream(thread, stream_it, additional_instructions))
         async for token in stream_it.aiter():
             yield token
         await task

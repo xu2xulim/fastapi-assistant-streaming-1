@@ -1,3 +1,4 @@
+from typing import Union
 from fastapi import APIRouter, Body, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -42,9 +43,13 @@ class Query(BaseModel):
     text: str
     thread_id: str
 
+class chatPayload(BaseModel):
+    additional_instructions: Union[str, None] = None
+
 #
 @router.post("/assistant/chat")
 async def chat(
+    payload: chatPayload,
     query: Query = Body(...),
     assistant_service: AssistantService = Depends(get_assistant_service)
 ):
@@ -53,6 +58,6 @@ async def chat(
     await assistant_service.create_message(thread.id, query.text)
 
     stream_it = EventHandler()
-    gen = assistant_service.create_gen(thread, stream_it)
+    gen = assistant_service.create_gen(thread, stream_it, payload.additional_instructions)
 
     return StreamingResponse(gen, media_type="text/event-stream")
