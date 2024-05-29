@@ -48,6 +48,8 @@ class AssistantService:
     """
     async def run_stream(self, thread, stream_it: EventHandler, additional_instructions ):
 
+        print(f">>>> {additional_instructions}")
+
         async with self.client.beta.threads.runs.stream(
             thread_id=thread.id,
             assistant_id=self.assistant_id,
