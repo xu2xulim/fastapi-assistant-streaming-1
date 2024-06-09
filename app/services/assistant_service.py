@@ -24,6 +24,7 @@ class AssistantService:
     async def retrieve_thread(self, thread_id: str):
         thread = await self.client.beta.threads.retrieve(thread_id)
         return thread
+    
     # delete thread
     async def delete_thread(self, thread_id: str):
         thread = await self.client.beta.threads.delete(thread_id)
@@ -46,22 +47,21 @@ class AssistantService:
         ) as stream:
             await stream.until_done()
     """
-    async def run_stream(self, thread, stream_it: EventHandler, additional_instructions ):
-
-        print(f">>>> {additional_instructions}")
+    async def run_stream(self, thread, stream_it: EventHandler ):
 
         async with self.client.beta.threads.runs.stream(
             thread_id=thread.id,
             assistant_id=self.assistant_id,
             event_handler=stream_it,
-            additional_instructions=additional_instructions,
+            #additional_instructions=additional_instructions,
         ) as stream:
             await stream.until_done()
 
-    async def create_gen(self, thread, stream_it: EventHandler, additional_instructions):
-        task = asyncio.create_task(self.run_stream(thread, stream_it, additional_instructions))
+    async def create_gen(self, thread, stream_it: EventHandler):
+        task = asyncio.create_task(self.run_stream(thread, stream_it))
         async for token in stream_it.aiter():
             yield token
         await task
+
 
 

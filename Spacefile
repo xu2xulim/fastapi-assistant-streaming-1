@@ -6,8 +6,11 @@ micros:
     engine: python3.11
     primary: true
     run: uvicorn main:app
-    preset:
+    presets:
       env:
         - name: OPENAI_API_KEY
         - name: OPENAI_ASSISTANT_ID
+        - name: DETA_DATA_KEY
+    public_routes:
+      - "/*"
 
