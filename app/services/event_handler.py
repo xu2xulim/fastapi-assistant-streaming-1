@@ -79,12 +79,19 @@ class EventHandler(AsyncAssistantEventHandler):
                 tools_called = event.data.required_action.submit_tool_outputs.tool_calls
                 detalog.put({"checkpoint" : "tools called", "value" : str(tools_called)}, expire_in=120)
                 tool_outputs = []
+                characters = string.ascii_letters
                 for tx in tools_called :
                     tool_name = tx.function.name
                     tool_args = tx.function.arguments
-                    if tool_name == "parse_email":
-                        tool_output = parse_email(tool_args.emailplaintext)
-                        #detalog.put({"checkpoint" : "count and output", "value" : f"{idx} and {tool_output}"}, expire_in=120) 
+                    if tool_name == "get_random_digit":
+                        tool_output = random.randrange(10)
+                    elif tool_name == "get_random_letters":
+                        idx = json.loads(tool_args)['count']
+                        tool_output = ""
+                        for ix in range(idx):
+                            tool_output = tool_output + random.choice(characters)
+                        
+                    #detalog.put({"checkpoint" : "count and output", "value" : f"{idx} and {tool_output}"}, expire_in=120) 
                     else:
                         tool_output = "Dummy"
                     
