@@ -6,6 +6,8 @@ from openai.types.beta import AssistantStreamEvent
 from typing_extensions import override
 from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
 
+from app.core.config import settings
+
 import os
 import json
 import requests
@@ -18,6 +20,24 @@ DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
 detalog = Deta().Base('deta_log')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
+async def parse_email(self, emailplaintext):
+    sub1 = settings.EMAIL_SUBSTRING_START
+    sub2 = settings.EMAIL_SUBSTRING_END
+
+    # getting index of substrings
+    idx1 = emailplaintext.index(sub1)
+    idx2 = emailplaintext.index(sub2)
+
+    res = ''
+    # getting elements in between
+    for idx in range(idx1 + len(sub1) + 1, idx2):
+        res = res + emailplaintext[idx]
+
+    idx3 = res.index("\n")
+
+    pfx_embed = sub1[:sub1.index(" ")+1]
+
+    return res.split("\n")[0], res[idx3+1:].replace(pfx_embed, "")
 
 class EventHandler(AsyncAssistantEventHandler):
     """Async event handler that provides an async iterator."""
@@ -44,7 +64,7 @@ class EventHandler(AsyncAssistantEventHandler):
     @override
     async def on_end(self) -> None:
         """Fires when stream ends or when exception is thrown"""
-        detalog.put({"checkpoint" : "on_end", "log" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
+        detalog.put({"checkpoint" : "on_end", "value" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
     
         self.done.set()
 
@@ -53,25 +73,18 @@ class EventHandler(AsyncAssistantEventHandler):
         
         if event.event == "thread.run.requires_action":
 
-            detalog.put({"checkpoint" : "required action", "log" : event.event, "event" : str(event)}, expire_in=120)
+            detalog.put({"checkpoint" : "required action", "value" : event.event, "event" : str(event)}, expire_in=120)
             
             if event.data.required_action and event.data.required_action.type == 'submit_tool_outputs':
                 tools_called = event.data.required_action.submit_tool_outputs.tool_calls
-                detalog.put({"checkpoint" : "tools called", "log" : str(tools_called)}, expire_in=120)
+                detalog.put({"checkpoint" : "tools called", "value" : str(tools_called)}, expire_in=120)
                 tool_outputs = []
-                characters = string.ascii_letters
                 for tx in tools_called :
                     tool_name = tx.function.name
                     tool_args = tx.function.arguments
-                    if tool_name == "get_random_digit":
-                        tool_output = random.randrange(10)
-                    elif tool_name == "get_random_letters":
-                        idx = json.loads(tool_args)['count']
-                        tool_output = ""
-                        for ix in range(idx):
-                            tool_output = tool_output + random.choice(characters)
-                        
-                        detalog.put({"checkpoint" : "count and output", "log" : f"{idx} and {tool_output}"}, expire_in=120) 
+                    if tool_name == "parse_email":
+                        tool_output = parse_email(tool_args.emailplaintext)
+                        #detalog.put({"checkpoint" : "count and output", "value" : f"{idx} and {tool_output}"}, expire_in=120) 
                     else:
                         tool_output = "Dummy"
                     
@@ -86,14 +99,14 @@ class EventHandler(AsyncAssistantEventHandler):
                     "Authorization" : f"Bearer {OPENAI_API_KEY}"}
                 
                 res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
-                detalog.put({"checkpoint" : "res_text", "log" : str(res.text)}, expire_in=120) 
+                detalog.put({"checkpoint" : "res_text", "value" : str(res.text)}, expire_in=120) 
                 try:
                     if res.status_code == 200:
                         for ex in str(res.text).split("\n\n"):
                             if "thread.message.completed" in ex:
                                 
                                 found = json.loads(ex.split("\n")[1].split("data: ")[1])
-                                detalog.put({"checkpoint" : "value", "log" : found['content'][0]['text']['value']}, expire_in=120) 
+                                #detalog.put({"checkpoint" : "event data" , "value" : found['content'][0]['text']['value']}, expire_in=120) 
                                 textvalue = found['content'][0]['text']['value']
                                 if textvalue is not None and textvalue != "":
                                     self.queue.put_nowait(textvalue)      
@@ -113,10 +126,10 @@ class EventHandler(AsyncAssistantEventHandler):
     @override
     async def on_tool_call_delta(self, delta: ToolCallDelta, snapshot: ToolCall):
 
-        #detalog.put({"checkpoint" : "on_tool_call_delta", "log" : str(delta)}, expire_in=120)
+        #detalog.put({"checkpoint" : "on_tool_call_delta", "value" : str(delta)}, expire_in=120)
          
         if delta.type == "code_interpreter" and delta.code_interpreter:
-            #detalog.put({"checkpoint" : "code_interpreter on_tool_call_delta", "log" : str(delta)}, expire_in=120) 
+            #detalog.put({"checkpoint" : "code_interpreter on_tool_call_delta", "value" : str(delta)}, expire_in=120) 
             if delta.code_interpreter.input:
                 print(delta.code_interpreter.input, end="", flush=True)
             if delta.code_interpreter.outputs:
@@ -141,7 +154,7 @@ class EventHandler(AsyncAssistantEventHandler):
         """
     #@override
     #async def on_tool_call_done(self, tool_call: ToolCall) -> None:
-        #detalog.put({"checkpoint" : "on_tool_call_done", "log" : str(tool_call)}, expire_in=120)        
+        #detalog.put({"checkpoint" : "on_tool_call_done", "value" : str(tool_call)}, expire_in=120)        
         #return
 
     async def aiter(self) -> AsyncIterator[str]:
