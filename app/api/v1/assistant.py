@@ -10,10 +10,11 @@ from app.core.config import settings
 
 from deta import Deta
 import httpx
+import os
 
-
-detalog = Deta().Base('deta_log')
-oalog = Deta().Base('assistant')
+DETA_DATA_KEY=os.environ.get('DETA_DATA_KEY')
+detalog = Deta(DETA_DATA_KEY).Base('deta_log')
+oalog = Deta(DETA_DATA_KEY).Base('assistant')
 
 router = APIRouter()
 
