@@ -5,6 +5,14 @@ from openai import AsyncOpenAI
 from app.core.config import settings
 from app.services.event_handler import EventHandler
 
+import json
+import random
+import string
+import os
+from deta import Deta
+DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
+detalog = Deta().Base('deta_log')
+
 class AssistantService:
     client: AsyncOpenAI
     assistant_id: str
@@ -55,6 +63,39 @@ class AssistantService:
             event_handler=stream_it,
             #additional_instructions=additional_instructions,
         ) as stream:
+            '''            
+            for event in stream:
+                if event.event == "thread.run.requires_action":
+                    detalog.put({"checkpoint" : "required action", "value" : event.event, "event" : str(event)}, expire_in=120)
+                    if event.data.required_action and event.data.required_action.type == 'submit_tool_outputs':
+                        tools_called = event.data.required_action.submit_tool_outputs.tool_calls
+                        detalog.put({"checkpoint" : "tools called", "value" : str(tools_called)}, expire_in=120)
+                        tool_outputs = []
+                        characters = string.ascii_letters
+                        for tx in tools_called :
+                            tool_name = tx.function.name
+                            tool_args = tx.function.arguments
+                            if tool_name == "get_random_digit":
+                                tool_output = random.randrange(10)
+                            elif tool_name == "get_random_letters":
+                                idx = json.loads(tool_args)['count']
+                                tool_output = ""
+                                for ix in range(idx):
+                                    tool_output = tool_output + random.choice(characters)
+                            else:
+                                tool_output = "Dummy"
+                    
+                            tool_outputs.append({
+                                "tool_call_id": tx.id,
+                                "output" : str(tool_output)
+                                })
+                        async with self.client.threads.runs.submit_tool_outputs_stream(
+                            thread_id=thread.id,
+                            assistant_id=self.assistant_id,
+                            event_handler=stream_it,
+                        ) as stream2:
+                            await stream2.until_done()'''
+                   
             await stream.until_done()
 
     async def create_gen(self, thread, stream_it: EventHandler):

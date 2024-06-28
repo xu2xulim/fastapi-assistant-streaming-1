@@ -7,8 +7,6 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str
     OPENAI_ASSISTANT_ID: str
     PROJECT_VERSION: str = "1.0.0"
-    EMAIL_SUBSTRING_START: str
-    EMAIL_SUBSTRING_END: str
 
     class Config:
         env_file = ".env"

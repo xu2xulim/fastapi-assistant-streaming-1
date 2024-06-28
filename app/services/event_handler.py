@@ -10,7 +10,7 @@ from app.core.config import settings
 
 import os
 import json
-import requests
+import httpx
 import random
 import string
 
@@ -20,24 +20,6 @@ DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
 detalog = Deta().Base('deta_log')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
-async def parse_email(self, emailplaintext):
-    sub1 = settings.EMAIL_SUBSTRING_START
-    sub2 = settings.EMAIL_SUBSTRING_END
-
-    # getting index of substrings
-    idx1 = emailplaintext.index(sub1)
-    idx2 = emailplaintext.index(sub2)
-
-    res = ''
-    # getting elements in between
-    for idx in range(idx1 + len(sub1) + 1, idx2):
-        res = res + emailplaintext[idx]
-
-    idx3 = res.index("\n")
-
-    pfx_embed = sub1[:sub1.index(" ")+1]
-
-    return res.split("\n")[0], res[idx3+1:].replace(pfx_embed, "")
 
 class EventHandler(AsyncAssistantEventHandler):
     """Async event handler that provides an async iterator."""
@@ -67,7 +49,7 @@ class EventHandler(AsyncAssistantEventHandler):
         detalog.put({"checkpoint" : "on_end", "value" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
     
         self.done.set()
-
+    
     @override
     async def on_event(self, event: AssistantStreamEvent) -> None:
         
@@ -105,25 +87,48 @@ class EventHandler(AsyncAssistantEventHandler):
                     "OpenAI-Beta" : "assistants=v2",
                     "Authorization" : f"Bearer {OPENAI_API_KEY}"}
                 
-                res = requests.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
-                detalog.put({"checkpoint" : "res_text", "value" : str(res.text)}, expire_in=120) 
                 try:
-                    if res.status_code == 200:
-                        for ex in str(res.text).split("\n\n"):
-                            if "thread.message.completed" in ex:
-                                
-                                found = json.loads(ex.split("\n")[1].split("data: ")[1])
-                                #detalog.put({"checkpoint" : "event data" , "value" : found['content'][0]['text']['value']}, expire_in=120) 
-                                textvalue = found['content'][0]['text']['value']
+                    detalog.put({"checkpoint" : "before submit tool output", "value" : tool_outputs}, expire_in=120) 
+                    #res = httpx.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
+                    response_text = None
+                    
+                    async with httpx.AsyncClient() as client:
+                        req = client.build_request("POST", f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
+                        res = await client.send(req, stream=True)
+        
+                        byte_string = await res.aread()  # Read the response content
+        
+                        # Optionally, you might want to check the status code
+                        if res.status_code == 200:
+                            response_text = str(byte_string, encoding='utf-8')
+                        else:
+                            raise Exception(f"Request failed with status code {res.status_code}")
+                    
+                    detalog.put({"checkpoint" : "status code", "value" : res.status_code}, expire_in=120)
+                    detalog.put({"checkpoint" : "res_text", "value" : response_text}, expire_in=120)
+
+                    if res.status_code == 200 and response_text!=None:
+                        events = [x.split("\n") for x in response_text.split("\n\n")]
+                        events.reverse()
+                        for ex in events:
+                            if 'thread.message.completed' in ex[0]:
+                                thread_msg = json.loads(ex[1].split('data:')[1].strip())
+                                textvalue = thread_msg['content'][0]['text']['value']
+                                detalog.put({"checkpoint" : "text value" , "value" : textvalue}, expire_in=120) 
                                 if textvalue is not None and textvalue != "":
-                                    self.queue.put_nowait(textvalue)      
-                                break
+                                    self.queue.put_nowait(textvalue)
+                                    self.done.clear()
+                                else:
+                                    detalog.put({"checkpoint" : "null message"}, expire_in=120)
+                                    self.queue.put_nowait("Received a null message")
+                                break   
                     else:
                         self.queue.put_nowait("Process did not complete successfully")
+                
                 except:
                     self.queue.put_nowait("Process did not complete successfully")
                 
-
+    
     # from https://github.com/openai/openai-python/blob/main/helpers.md
     @override
     async def on_tool_call_created(self, tool_call: ToolCall):
