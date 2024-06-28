@@ -100,6 +100,7 @@ class EventHandler(AsyncAssistantEventHandler):
         
                         # Optionally, you might want to check the status code
                         if res.status_code == 200:
+                            self.done.clear()
                             response_text = str(byte_string, encoding='utf-8')
                         else:
                             raise Exception(f"Request failed with status code {res.status_code}")
@@ -117,7 +118,6 @@ class EventHandler(AsyncAssistantEventHandler):
                                 detalog.put({"checkpoint" : "text value" , "value" : textvalue}, expire_in=120) 
                                 if textvalue is not None and textvalue != "":
                                     self.queue.put_nowait(textvalue)
-                                    self.done.clear()
                                 else:
                                     detalog.put({"checkpoint" : "null message"}, expire_in=120)
                                     self.queue.put_nowait("Received a null message")
