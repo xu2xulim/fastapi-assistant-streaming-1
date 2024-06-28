@@ -45,6 +45,7 @@ class EventHandler(AsyncAssistantEventHandler):
 
     @override
     async def on_end(self) -> None:
+
         """Fires when stream ends or when exception is thrown"""
         detalog.put({"checkpoint" : "on_end", "value" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
     
@@ -93,7 +94,7 @@ class EventHandler(AsyncAssistantEventHandler):
                     response_text = None
                     
                     async with httpx.AsyncClient() as client:
-                        req = client.build_request("POST", f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
+                        req = client.build_request("POST", f"https://api.openai.com/v1/threads/thread_tnYPFZWgxomSYkDTYzca9ZgP/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
                         res = await client.send(req, stream=True)
         
                         byte_string = await res.aread()  # Read the response content
