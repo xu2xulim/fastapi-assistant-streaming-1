@@ -31,6 +31,7 @@ class EventHandler(AsyncAssistantEventHandler):
         super().__init__()
         self.queue = asyncio.Queue()
         self.done = asyncio.Event()
+        self.submitted = False
 
     @override
     async def on_text_created(self, text) -> None:
@@ -48,8 +49,10 @@ class EventHandler(AsyncAssistantEventHandler):
 
         """Fires when stream ends or when exception is thrown"""
         detalog.put({"checkpoint" : "on_end", "value" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
-    
-        self.done.set()
+        if self.submitted:
+            pass
+        else:
+            self.done.set()
     
     @override
     async def on_event(self, event: AssistantStreamEvent) -> None:
@@ -92,16 +95,15 @@ class EventHandler(AsyncAssistantEventHandler):
                     detalog.put({"checkpoint" : "before submit tool output", "value" : tool_outputs}, expire_in=120) 
                     #res = httpx.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
                     response_text = None
-                    
+                    self.submitted = True
                     async with httpx.AsyncClient() as client:
-                        req = client.build_request("POST", f"https://api.openai.com/v1/threads/thread_tnYPFZWgxomSYkDTYzca9ZgP/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
+                        req = client.build_request("POST", f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
                         res = await client.send(req, stream=True)
         
                         byte_string = await res.aread()  # Read the response content
         
                         # Optionally, you might want to check the status code
                         if res.status_code == 200:
-                            self.done.clear()
                             response_text = str(byte_string, encoding='utf-8')
                         else:
                             raise Exception(f"Request failed with status code {res.status_code}")
@@ -110,6 +112,7 @@ class EventHandler(AsyncAssistantEventHandler):
                     detalog.put({"checkpoint" : "res_text", "value" : response_text}, expire_in=120)
 
                     if res.status_code == 200 and response_text!=None:
+                        self.done.clear()
                         events = [x.split("\n") for x in response_text.split("\n\n")]
                         events.reverse()
                         for ex in events:
@@ -118,7 +121,9 @@ class EventHandler(AsyncAssistantEventHandler):
                                 textvalue = thread_msg['content'][0]['text']['value']
                                 detalog.put({"checkpoint" : "text value" , "value" : textvalue}, expire_in=120) 
                                 if textvalue is not None and textvalue != "":
+                                    detalog.put({"checkpoint" : "what is done stats?" , "value" : str(self.done)}, expire_in=120) 
                                     self.queue.put_nowait(textvalue)
+                                    self.submitted=False
                                 else:
                                     detalog.put({"checkpoint" : "null message"}, expire_in=120)
                                     self.queue.put_nowait("Received a null message")
