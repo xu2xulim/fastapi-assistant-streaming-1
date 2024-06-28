@@ -31,7 +31,7 @@ class EventHandler(AsyncAssistantEventHandler):
         super().__init__()
         self.queue = asyncio.Queue()
         self.done = asyncio.Event()
-        self.submitted = False
+        #self.submitted = False
 
     @override
     async def on_text_created(self, text) -> None:
@@ -49,10 +49,11 @@ class EventHandler(AsyncAssistantEventHandler):
 
         """Fires when stream ends or when exception is thrown"""
         detalog.put({"checkpoint" : "on_end", "value" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
-        if self.submitted:
+        """if self.submitted:
             pass
         else:
-            self.done.set()
+            self.done.set()"""
+        self.done.set()
     
     @override
     async def on_event(self, event: AssistantStreamEvent) -> None:
@@ -95,7 +96,7 @@ class EventHandler(AsyncAssistantEventHandler):
                     detalog.put({"checkpoint" : "before submit tool output", "value" : tool_outputs}, expire_in=120) 
                     #res = httpx.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
                     response_text = None
-                    self.submitted = True
+                    #self.submitted = True
                     async with httpx.AsyncClient() as client:
                         req = client.build_request("POST", f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
                         res = await client.send(req, stream=True)
@@ -123,7 +124,7 @@ class EventHandler(AsyncAssistantEventHandler):
                                 if textvalue is not None and textvalue != "":
                                     detalog.put({"checkpoint" : "what is done stats?" , "value" : str(self.done)}, expire_in=120) 
                                     self.queue.put_nowait(textvalue)
-                                    self.submitted=False
+                                    #self.submitted=False
                                 else:
                                     detalog.put({"checkpoint" : "null message"}, expire_in=120)
                                     self.queue.put_nowait("Received a null message")
