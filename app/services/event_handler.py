@@ -8,13 +8,12 @@ from openai.types.beta.threads.runs import ToolCall, ToolCallDelta
 
 from app.core.config import settings
 
-import os
 import json
 import httpx
 import random
 import string
 
-
+import os
 from deta import Deta
 DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
 detalog = Deta(DETA_DATA_KEY).Base('deta_log')
@@ -31,7 +30,6 @@ class EventHandler(AsyncAssistantEventHandler):
         super().__init__()
         self.queue = asyncio.Queue()
         self.done = asyncio.Event()
-        #self.submitted = False
 
     @override
     async def on_text_created(self, text) -> None:
@@ -49,10 +47,6 @@ class EventHandler(AsyncAssistantEventHandler):
 
         """Fires when stream ends or when exception is thrown"""
         detalog.put({"checkpoint" : "on_end", "value" : "Fires when stream ends or when exception is thrown"}, expire_in=120) 
-        """if self.submitted:
-            pass
-        else:
-            self.done.set()"""
         self.done.set()
     
     @override
@@ -96,7 +90,6 @@ class EventHandler(AsyncAssistantEventHandler):
                     detalog.put({"checkpoint" : "before submit tool output", "value" : tool_outputs}, expire_in=120) 
                     #res = httpx.post(f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
                     response_text = None
-                    #self.submitted = True
                     async with httpx.AsyncClient() as client:
                         req = client.build_request("POST", f"https://api.openai.com/v1/threads/{event.data.thread_id}/runs/{event.data.id}/submit_tool_outputs", json={"tool_outputs" : tool_outputs, "stream" : True}, headers=headers)
                         res = await client.send(req, stream=True)
@@ -122,18 +115,16 @@ class EventHandler(AsyncAssistantEventHandler):
                                 textvalue = thread_msg['content'][0]['text']['value']
                                 detalog.put({"checkpoint" : "text value" , "value" : textvalue}, expire_in=120) 
                                 if textvalue is not None and textvalue != "":
-                                    detalog.put({"checkpoint" : "what is done stats?" , "value" : str(self.done)}, expire_in=120) 
                                     self.queue.put_nowait(textvalue)
-                                    #self.submitted=False
                                 else:
                                     detalog.put({"checkpoint" : "null message"}, expire_in=120)
-                                    self.queue.put_nowait("Received a null message")
+                                    self.queue.put_nowait("Received a null message from submit tool outputs")
                                 break   
                     else:
-                        self.queue.put_nowait("Process did not complete successfully")
+                        self.queue.put_nowait("Submit tool outputs did not complete successfully")
                 
                 except:
-                    self.queue.put_nowait("Process did not complete successfully")
+                    self.queue.put_nowait("Error in handle tool outputs")
                 
     
     # from https://github.com/openai/openai-python/blob/main/helpers.md
@@ -144,11 +135,9 @@ class EventHandler(AsyncAssistantEventHandler):
 
     @override
     async def on_tool_call_delta(self, delta: ToolCallDelta, snapshot: ToolCall):
-
-        #detalog.put({"checkpoint" : "on_tool_call_delta", "value" : str(delta)}, expire_in=120)
          
         if delta.type == "code_interpreter" and delta.code_interpreter:
-            #detalog.put({"checkpoint" : "code_interpreter on_tool_call_delta", "value" : str(delta)}, expire_in=120) 
+            
             if delta.code_interpreter.input:
                 print(delta.code_interpreter.input, end="", flush=True)
             if delta.code_interpreter.outputs:
@@ -158,19 +147,6 @@ class EventHandler(AsyncAssistantEventHandler):
                     if output.type == "logs":
                         print(f"\n{output.logs}", flush=True)
         
-        """
-            if delta.function.arguments:
-                print(f"\n\narguments {json.loads(delta.function.arguments)}", end="", flush=True)
-            if delta.function.output:
-                print(f"\n\noutput >", flush=True)
-            if delta.function.output != None:
-                for output in delta.function.output:
-                    #if output.type == "logs":
-                    print(f"\n{output.type}", flush=True)
-
-            else:
-                print(f"\noutput is None", flush=True)
-        """
     #@override
     #async def on_tool_call_done(self, tool_call: ToolCall) -> None:
         #detalog.put({"checkpoint" : "on_tool_call_done", "value" : str(tool_call)}, expire_in=120)        

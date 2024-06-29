@@ -5,9 +5,6 @@ from openai import AsyncOpenAI
 from app.core.config import settings
 from app.services.event_handler import EventHandler
 
-import json
-import random
-import string
 import os
 from deta import Deta
 DETA_DATA_KEY = os.environ.get('DETA_DATA_KEY')
